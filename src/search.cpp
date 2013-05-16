@@ -317,7 +317,7 @@ namespace {
         PVSize = 4;
 
     PVSize = std::min(PVSize, RootMoves.size());
-
+	delta=Value(24);
     // Iterative deepening loop until requested to stop or target depth reached
     while (++depth <= MAX_PLY && !Signals.stop && (!Limits.depth || depth <= Limits.depth))
     {
@@ -335,7 +335,7 @@ namespace {
             // Set aspiration window default width
             if (depth >= 5 && abs(RootMoves[PVIdx].prevScore) < VALUE_KNOWN_WIN)
             {
-                delta = Value(16);
+                delta = (Value(8)+delta)/2;
                 alpha = RootMoves[PVIdx].prevScore - delta;
                 beta  = RootMoves[PVIdx].prevScore + delta;
             }
