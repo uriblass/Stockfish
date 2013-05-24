@@ -420,19 +420,16 @@ Value do_evaluate(const Position& pos, Value& margin) {
       && pos.opposite_bishops()
       && sf == SCALE_FACTOR_NORMAL)
   {
-      // Only the two bishops ?
+	   int numpawns=(pos.piece_count(WHITE, PAWN) + pos.piece_count(BLACK, PAWN));
+	  int scalenumber[17]={4,8,12,16,19,22,25,27,29,30,31,32,32,32,32,32,32};
+	  int scaleend=scalenumber[numpawns];
       if (   pos.non_pawn_material(WHITE) == BishopValueMg
           && pos.non_pawn_material(BLACK) == BishopValueMg)
-      {
-          // Check for KBP vs KB with only a single pawn that is almost
-          // certainly a draw or at least two pawns.
-          bool one_pawn = (pos.piece_count(WHITE, PAWN) + pos.piece_count(BLACK, PAWN) == 1);
-          sf = one_pawn ? ScaleFactor(8) : ScaleFactor(32);
-      }
+		  sf = ScaleFactor(scaleend);
       else
           // Endgame with opposite-colored bishops, but also other pieces. Still
           // a bit drawish, but not as drawish as with only the two bishops.
-           sf = ScaleFactor(50);
+           sf = ScaleFactor(scaleend+(scaleend/2));
   }
 
   margin = margins[pos.side_to_move()];
