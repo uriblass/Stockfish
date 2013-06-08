@@ -943,7 +943,7 @@ split_point_start: // At split points actual search starts from here
       // re-searched at full depth.
       if (    depth > 3 * ONE_PLY
           && !pvMove
-          && !captureOrPromotion
+          && (!captureOrPromotion||(moveCount>10))
           && !dangerous
           &&  move != ttMove
           &&  move != ss->killers[0]
