@@ -138,8 +138,11 @@ void Search::init() {
       double nonPVRed = 0.33 + log(double(hd)) * log(double(mc)) / 2.25;
       Reductions[1][hd][mc] = (int8_t) (   pvRed >= 1.0 ? floor(   pvRed * int(ONE_PLY)) : 0);
       Reductions[0][hd][mc] = (int8_t) (nonPVRed >= 1.0 ? floor(nonPVRed * int(ONE_PLY)) : 0);
+	  if (Reductions[1][hd][mc]>3*ONE_PLY)
+		  Reductions[1][hd][mc]=3*ONE_PLY;
+	  if (Reductions[0][hd][mc]>3*ONE_PLY)
+		  Reductions[0][hd][mc]=3*ONE_PLY;
   }
-
   // Init futility margins array
   for (d = 1; d < 16; d++) for (mc = 0; mc < 64; mc++)
       FutilityMargins[d][mc] = Value(112 * int(log(double(d * d) / 2) / log(2.0) + 1.001) - 8 * mc + 45);
