@@ -384,19 +384,19 @@ namespace {
                     alpha = -VALUE_INFINITE;
                     beta  =  VALUE_INFINITE;
                 }
-                else if (bestValue >= beta)
-                {
-                    beta += delta;
-                    delta += delta / 2;
-                }
-                else
-                {
-                    Signals.failedLowAtRoot = true;
-                    Signals.stopOnPonderhit = false;
-
-                    alpha -= delta;
-                    delta += delta / 2;
-                }
+                else 
+				{
+					if (bestValue >= beta)
+						beta += delta;
+					else
+					{
+						Signals.failedLowAtRoot = true;
+						Signals.stopOnPonderhit = false;
+						alpha -= delta;
+					}
+					delta += Value(16);
+				}
+  
 
                 assert(alpha >= -VALUE_INFINITE && beta <= VALUE_INFINITE);
             }
