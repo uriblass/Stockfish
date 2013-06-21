@@ -387,14 +387,13 @@ namespace {
                 else if (bestValue >= beta)
                 {
                     beta += delta;
-					alpha-= Value(4);
+					alpha-= Value(8);
                     delta += delta / 2;
                 }
                 else
                 {
                     Signals.failedLowAtRoot = true;
                     Signals.stopOnPonderhit = false;
-
                     alpha -= delta;
                     delta += delta / 2;
                 }
