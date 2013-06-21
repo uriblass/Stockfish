@@ -387,7 +387,7 @@ namespace {
                 else if (bestValue >= beta)
                 {
                     beta += delta;
-					alpha-= delta;
+					alpha-= Value(4);
                     delta += delta / 2;
                 }
                 else
