@@ -331,9 +331,13 @@ namespace {
             // Set aspiration window default width
             if (depth >= 5 && abs(RootMoves[PVIdx].prevScore) < VALUE_KNOWN_WIN)
             {
-                delta = Value(16);
+				delta=Value(16);
                 alpha = RootMoves[PVIdx].prevScore - delta;
                 beta  = RootMoves[PVIdx].prevScore + delta;
+				if (alpha>0)
+					alpha=alpha-(alpha/16);
+				if (beta<0)
+					beta=beta-(beta/16);
             }
             else
             {
@@ -383,7 +387,6 @@ namespace {
                 else if (bestValue >= beta)
                 {
                     beta += delta;
-					alpha-=Value(8);
                     delta += delta / 2;
                 }
                 else
