@@ -928,15 +928,16 @@ split_point_start: // At split points actual search starts from here
       ss->currentMove = move;
       if (!SpNode && !captureOrPromotion && playedMoveCount < 64)
           movesSearched[playedMoveCount++] = move;
-
+	  
       // Step 14. Make the move
+	  int pawncapture=(type_of(pos.piece_on(to_sq(move)))== PAWN);
       pos.do_move(move, st, ci, givesCheck);
 
       // Step 15. Reduced depth search (LMR). If the move fails high will be
       // re-searched at full depth.
       if (    depth > 3 * ONE_PLY
           && !pvMove
-          && !captureOrPromotion
+          && (!captureOrPromotion||(pawncapture))
           && !dangerous
           &&  move != ttMove
           &&  move != ss->killers[0]
