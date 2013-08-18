@@ -305,7 +305,7 @@ namespace {
   void id_loop(Position& pos) {
 
     Stack stack[MAX_PLY_PLUS_3], *ss = stack+2; // To allow referencing (ss-2)
-    int depth, prevBestMoveChanges;
+    int depth;
     Value bestValue, alpha, beta, delta;
 
     std::memset(ss-2, 0, 5 * sizeof(Stack));
@@ -337,9 +337,7 @@ namespace {
         // the move scores but the (new) PV are set to -VALUE_INFINITE.
         for (size_t i = 0; i < RootMoves.size(); i++)
             RootMoves[i].prevScore = RootMoves[i].score;
-
-        prevBestMoveChanges = BestMoveChanges; // Only sensible when PVSize == 1
-        BestMoveChanges = 0;
+        BestMoveChanges = BestMoveChanges/2;
 
         // MultiPV loop. We perform a full root search for each PV line
         for (PVIdx = 0; PVIdx < PVSize; PVIdx++)
@@ -438,7 +436,7 @@ namespace {
 
             // Take in account some extra time if the best move has changed
             if (depth > 4 && depth < 50 &&  PVSize == 1)
-                TimeMgr.pv_instability(BestMoveChanges, prevBestMoveChanges);
+                TimeMgr.pv_instability(BestMoveChanges);
 
             // Stop search if most of available time is already consumed. We
             // probably don't have enough time to search the first move at the
@@ -1020,7 +1018,7 @@ moves_loop: // When in check and at SpNode search starts from here
               // iteration. This information is used for time management: When
               // the best move changes frequently, we allocate some more time.
               if (!pvMove)
-                  BestMoveChanges++;
+                  BestMoveChanges+=2;
           }
           else
               // All other moves but the PV are set to the lowest value, this
