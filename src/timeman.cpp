@@ -76,10 +76,9 @@ namespace {
 }
 
 
-void TimeManager::pv_instability(int curChanges, int prevChanges) {
+void TimeManager::pv_instability(float curChanges) {
 
-  unstablePVExtraTime =  curChanges  * (optimumSearchTime / 2)
-                       + prevChanges * (optimumSearchTime / 3);
+  unstablePVExtraTime = (int) (curChanges  * (optimumSearchTime / 2));
 }
 
 
@@ -128,10 +127,10 @@ void TimeManager::init(const Search::LimitsType& limits, int currentPly, Color u
       t1 = minThinkingTime + remaining<OptimumTime>(hypMyTime, hypMTG, currentPly, slowMover);
       t2 = minThinkingTime + remaining<MaxTime>(hypMyTime, hypMTG, currentPly, slowMover);
 
-      optimumSearchTime = std::min(optimumSearchTime, t1);
+      optimumSearchTime = std::min(optimumSearchTime, t1)*3/4;
       maximumSearchTime = std::min(maximumSearchTime, t2);
   }
-
+  
   if (Options["Ponder"])
       optimumSearchTime += optimumSearchTime / 4;
 
