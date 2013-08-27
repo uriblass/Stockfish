@@ -78,7 +78,7 @@ namespace {
 
 void TimeManager::pv_instability(float bestMoveChanges) {
 
-  unstablePVExtraTime =  (int)(bestMoveChanges  *optimumSearchTime*1.5);                     
+  unstablePVExtraTime =  (int)(bestMoveChanges  *optimumSearchTime*1.2);                     
 }
 
 
