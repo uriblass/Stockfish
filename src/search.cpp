@@ -306,7 +306,7 @@ namespace {
     Stack stack[MAX_PLY_PLUS_6], *ss = stack+2; // To allow referencing (ss-2)
     int depth;
     Value bestValue, alpha, beta, delta;
-
+	float factor=1.0;
     std::memset(ss-2, 0, 5 * sizeof(Stack));
     (ss-1)->currentMove = MOVE_NULL; // Hack to skip update gains
 
@@ -335,7 +335,8 @@ namespace {
     {
         // Age out PV variability metric
         BestMoveChanges *= 0.8;
-
+		if (BestMoveChanges>1&&depth>5)
+			factor=1;
         // Save last iteration's scores before first PV line is searched and all
         // the move scores but the (new) PV are set to -VALUE_INFINITE.
         for (size_t i = 0; i < RootMoves.size(); i++)
@@ -443,28 +444,24 @@ namespace {
             // Stop search if most of available time is already consumed. We
             // probably don't have enough time to search the first move at the
             // next iteration anyway.
-            if (Time::now() - SearchTime > (TimeMgr.available_time() * 62) / 100)
+            if (Time::now() - SearchTime > (TimeMgr.available_time() * 62*factor) / 100)
                 stop = true;
 
             // Stop search early if one move seems to be much better than others
-            if (    depth >= 12
-                && !stop
-                &&  PVSize == 1
-                &&  bestValue > VALUE_MATED_IN_MAX_PLY
-                && (   RootMoves.size() == 1
-                    || Time::now() - SearchTime > (TimeMgr.available_time() * 20) / 100))
-            {
-                Value rBeta = bestValue - 2 * PawnValueMg;
-                ss->excludedMove = RootMoves[0].pv[0];
-                ss->skipNullMove = true;
-                Value v = search<NonPV>(pos, ss, rBeta - 1, rBeta, (depth - 3) * ONE_PLY, true);
-                ss->skipNullMove = false;
-                ss->excludedMove = MOVE_NONE;
-
-                if (v < rBeta)
-                    stop = true;
-            }
-
+			if (depth==5
+				&& !stop
+				&& PVSize==1
+				&& bestValue > VALUE_MATED_IN_MAX_PLY)
+			{
+				 Value rBeta = bestValue - (PawnValueMg/2);
+				 ss->excludedMove = RootMoves[0].pv[0];
+                 ss->skipNullMove = true;
+                 Value v = search<NonPV>(pos, ss, rBeta - 1, rBeta, depth * ONE_PLY, true);
+				 ss->skipNullMove = false;
+                 ss->excludedMove = MOVE_NONE;
+				 if (v < rBeta)
+					 factor=0.5;
+			}
             if (stop)
             {
                 // If we are allowed to ponder do not stop the search now but
