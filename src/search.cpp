@@ -311,7 +311,7 @@ namespace {
     (ss-1)->currentMove = MOVE_NULL; // Hack to skip update gains
 
     depth = 0;
-    BestMoveChanges = 0;
+    BestMoveChanges = 4;
     bestValue = delta = alpha = -VALUE_INFINITE;
     beta = VALUE_INFINITE;
 
