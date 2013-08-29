@@ -334,7 +334,7 @@ namespace {
     while (++depth <= MAX_PLY && !Signals.stop && (!Limits.depth || depth <= Limits.depth))
     {
         // Age out PV variability metric
-		if (BestMoveChanges>=1&&depth>5)
+		if (BestMoveChanges>=1&&depth>8)
 			factor=1;
         BestMoveChanges *= 0.8;
         // Save last iteration's scores before first PV line is searched and all
@@ -448,22 +448,20 @@ namespace {
                 stop = true;
 
             // Stop search early if one move seems to be much better than others
-			if (depth==5
+			if (depth==8
 				&& !stop
 				&& PVSize==1
-				&& bestValue > VALUE_MATED_IN_MAX_PLY)
+				&& bestValue > VALUE_MATED_IN_MAX_PLY
+				&& BestMoveChanges<0.5)
 			{
-				 Value rBeta = bestValue - (PawnValueMg/2);
+				 Value rBeta = bestValue - PawnValueMg;
 				 ss->excludedMove = RootMoves[0].pv[0];
                  ss->skipNullMove = true;
-                 Value v = search<NonPV>(pos, ss, rBeta - 1, rBeta, depth * ONE_PLY, true);
+                 Value v = search<NonPV>(pos, ss, rBeta - 1, rBeta, 5 * ONE_PLY, true);
 				 ss->skipNullMove = false;
                  ss->excludedMove = MOVE_NONE;
 				 if (v < rBeta)
-				 {
-					 BestMoveChanges=0;
-					 factor=0.5;
-				 }
+					 factor=0.4;
 			}
             if (stop)
             {
