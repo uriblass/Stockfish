@@ -454,7 +454,7 @@ namespace {
                 && (   RootMoves.size() == 1
                     || Time::now() - SearchTime > (TimeMgr.available_time() * 20) / 100))
             {
-                Value rBeta = bestValue - 2 * PawnValueMg;
+                Value rBeta = bestValue - PawnValueMg/4;
                 ss->excludedMove = RootMoves[0].pv[0];
                 ss->skipNullMove = true;
                 Value v = search<NonPV>(pos, ss, rBeta - 1, rBeta, (depth - 3) * ONE_PLY, true);
