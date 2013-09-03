@@ -388,7 +388,7 @@ namespace {
                 if (bestValue <= alpha)
                 {
                     alpha = std::max(bestValue - delta, -VALUE_INFINITE);
-
+					BestMoveChanges++;
                     Signals.failedLowAtRoot = true;
                     Signals.stopOnPonderhit = false;
                 }
