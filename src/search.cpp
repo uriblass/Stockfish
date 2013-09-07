@@ -339,12 +339,11 @@ namespace {
         // the move scores but the (new) PV are set to -VALUE_INFINITE.
 		float increase_score= (RootMoves[0].score-RootMoves[0].prevScore);
 		increase_score/=200.0f;
-		if (BestMoveChanges-increase_score<0)
-			BestMoveChanges=0;
+		if (BestMoveChanges<increase_score)
+			increase_score=BestMoveChanges;
 		if (increase_score<-2.0f)
 			increase_score=-2.0f;
 		BestMoveChanges-=increase_score;
-
 
 
 
