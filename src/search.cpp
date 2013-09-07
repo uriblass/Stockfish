@@ -338,7 +338,7 @@ namespace {
         // Save last iteration's scores before first PV line is searched and all
         // the move scores but the (new) PV are set to -VALUE_INFINITE.
 		float increase_score= (RootMoves[0].score-RootMoves[0].prevScore);
-		increase_score/=200.0f;
+		increase_score/=50.0f;
 		if (BestMoveChanges<increase_score)
 			increase_score=BestMoveChanges;
 		if (increase_score<-2.0f)
