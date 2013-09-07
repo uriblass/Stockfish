@@ -390,6 +390,8 @@ namespace {
 
                     Signals.failedLowAtRoot = true;
                     Signals.stopOnPonderhit = false;
+					if (bestValue<alpha-50)
+						BestMoveChanges++;
                 }
                 else if (bestValue >= beta)
                     beta = std::min(bestValue + delta, VALUE_INFINITE);
