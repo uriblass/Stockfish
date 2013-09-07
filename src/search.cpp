@@ -337,6 +337,17 @@ namespace {
 
         // Save last iteration's scores before first PV line is searched and all
         // the move scores but the (new) PV are set to -VALUE_INFINITE.
+		float increase_score= (RootMoves[0].score-RootMoves[0].prevScore);
+		increase_score/=200.0f;
+		if (BestMoveChanges-increase_score<0)
+			BestMoveChanges=0;
+		if (increase_score<-2.0f)
+			increase_score=-2.0f;
+		BestMoveChanges-=increase_score;
+
+
+
+
         for (size_t i = 0; i < RootMoves.size(); i++)
             RootMoves[i].prevScore = RootMoves[i].score;
 
@@ -387,7 +398,6 @@ namespace {
                 if (bestValue <= alpha)
                 {
                     alpha = std::max(bestValue - delta, -VALUE_INFINITE);
-
                     Signals.failedLowAtRoot = true;
                     Signals.stopOnPonderhit = false;
                 }
