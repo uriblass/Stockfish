@@ -836,7 +836,8 @@ moves_loop: // When in check and at SpNode search starts from here
 
       else if (givesCheck && pos.see_sign(move) >= 0)
           ext = ONE_PLY / 2;
-
+	  if (ss->ply>12)
+		  ext=DEPTH_ZERO;
       // Singular extension search. If all moves but one fail low on a search of
       // (alpha-s, beta-s), and just one fails high on (alpha, beta), then that move
       // is singular and should be extended. To verify this we do a reduced search
