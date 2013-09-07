@@ -834,7 +834,7 @@ moves_loop: // When in check and at SpNode search starts from here
       if (PvNode && dangerous)
           ext = ONE_PLY;
 
-      else if (givesCheck && pos.see_sign(move) >= 0)
+      else if (givesCheck &&ss->ply<12&& pos.see_sign(move) >= 0)
           ext = ONE_PLY / 2;
 
       // Singular extension search. If all moves but one fail low on a search of
