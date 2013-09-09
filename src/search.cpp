@@ -837,7 +837,7 @@ moves_loop: // When in check and at SpNode search starts from here
       else if (givesCheck && pos.see_sign(move) >= 0)
 	  {
           ext = ONE_PLY / 2;
-		    if (ss->staticEval<Value(0)||inCheck)
+		    if (ss->staticEval<Value(300)||inCheck)
 				ext=ONE_PLY;
 	  }
 
