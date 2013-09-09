@@ -835,7 +835,11 @@ moves_loop: // When in check and at SpNode search starts from here
           ext = ONE_PLY;
 
       else if (givesCheck && pos.see_sign(move) >= 0)
+	  {
           ext = ONE_PLY / 2;
+		    if (ss->staticEval<Value(0)||inCheck)
+				ext=ONE_PLY;
+	  }
 
       // Singular extension search. If all moves but one fail low on a search of
       // (alpha-s, beta-s), and just one fails high on (alpha, beta), then that move
@@ -952,9 +956,9 @@ moves_loop: // When in check and at SpNode search starts from here
 
           if (move == countermoves[0] || move == countermoves[1])
               ss->reduction = std::max(DEPTH_ZERO, ss->reduction-ONE_PLY);
-		  if (ss->staticEval<Value(-300)||ss->staticEval>Value(300))
-			  if (ss->staticEval!=VALUE_NONE)
-			  ss->reduction += ONE_PLY;
+	//	  if (ss->staticEval<Value(-300)||ss->staticEval>Value(300))
+		//	  if (ss->staticEval!=VALUE_NONE)
+			//  ss->reduction += ONE_PLY;
 
           Depth d = std::max(newDepth - ss->reduction, ONE_PLY);
           if (SpNode)
