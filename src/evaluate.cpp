@@ -878,9 +878,8 @@ Value do_evaluate(const Position& pos, Value& margin) {
         }
 
         // Increase the bonus if we have more non-pawn pieces
-        if (pos.count<ALL_PIECES>(  Us) - pos.count<PAWN>(  Us) >
-            pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them))
-            ebonus += ebonus / 4;
+		int more_pieces=(pos.count<ALL_PIECES>(  Us) - pos.count<PAWN>(  Us)-pos.count<ALL_PIECES>(Them)+pos.count<PAWN>(Them));
+        ebonus += (ebonus*more_pieces) / 6;
 
         score += make_score(mbonus, ebonus);
 
