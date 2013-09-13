@@ -858,7 +858,7 @@ moves_loop: // When in check and at SpNode search starts from here
           ss->excludedMove = MOVE_NONE;
 
           if (value < rBeta)
-              ext = ONE_PLY;
+              ext = ONE_PLY/2;
       }
 
       // Update current move (this must be done after singular extension search)
