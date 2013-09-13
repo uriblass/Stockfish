@@ -299,7 +299,7 @@ namespace {
   // id_loop() is the main iterative deepening loop. It calls search() repeatedly
   // with increasing depth until the allocated thinking time has been consumed,
   // user stops the search, or the maximum search depth is reached.
-
+int initial_depth;
   void id_loop(Position& pos) {
 
     Stack stack[MAX_PLY_PLUS_6], *ss = stack+2; // To allow referencing (ss-2)
@@ -334,6 +334,7 @@ namespace {
     {
         // Age out PV variability metric
         BestMoveChanges *= 0.8f;
+		initial_depth=depth;
 
         // Save last iteration's scores before first PV line is searched and all
         // the move scores but the (new) PV are set to -VALUE_INFINITE.
@@ -535,7 +536,7 @@ namespace {
     ss->futilityMoveCount = 0;
     (ss+1)->skipNullMove = false; (ss+1)->reduction = DEPTH_ZERO;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
-
+	
     // Used to send selDepth info to GUI
     if (PvNode && thisThread->maxPly < ss->ply)
         thisThread->maxPly = ss->ply;
@@ -824,6 +825,9 @@ moves_loop: // When in check and at SpNode search starts from here
       }
 
       ext = DEPTH_ZERO;
+	  bool not_extend=false;
+	  if (ss->ply>initial_depth)
+		  not_extend=true;
       captureOrPromotion = pos.is_capture_or_promotion(move);
       givesCheck = pos.move_gives_check(move, ci);
       dangerous =   givesCheck
@@ -836,7 +840,8 @@ moves_loop: // When in check and at SpNode search starts from here
 
       else if (givesCheck && pos.see_sign(move) >= 0)
           ext = inCheck || ss->staticEval <= alpha ? ONE_PLY : ONE_PLY / 2;
-
+	  if (not_extend)
+		  ext=DEPTH_ZERO;
       // Singular extension search. If all moves but one fail low on a search of
       // (alpha-s, beta-s), and just one fails high on (alpha, beta), then that move
       // is singular and should be extended. To verify this we do a reduced search
@@ -845,6 +850,7 @@ moves_loop: // When in check and at SpNode search starts from here
       if (    singularExtensionNode
           &&  move == ttMove
           && !ext
+		  && !not_extend
           &&  pos.pl_move_is_legal(move, ci.pinned)
           &&  abs(ttValue) < VALUE_KNOWN_WIN)
       {
