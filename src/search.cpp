@@ -831,12 +831,16 @@ moves_loop: // When in check and at SpNode search starts from here
                  || type_of(move) == CASTLE;
 
       // Step 12. Extend checks and, in PV nodes, also dangerous moves
+	  bool uri_ext=false;
       if (PvNode && dangerous)
           ext = ONE_PLY;
 
       else if (givesCheck && pos.see_sign(move) >= 0)
-          ext = inCheck || ss->staticEval <= alpha ? ONE_PLY : ONE_PLY / 2;
-
+	  {
+         uri_ext=inCheck || ss->staticEval <= alpha;
+		 ext = uri_ext ? ONE_PLY : ONE_PLY / 2;
+	  }
+	  
       // Singular extension search. If all moves but one fail low on a search of
       // (alpha-s, beta-s), and just one fails high on (alpha, beta), then that move
       // is singular and should be extended. To verify this we do a reduced search
@@ -949,7 +953,7 @@ moves_loop: // When in check and at SpNode search starts from here
           if (!PvNode && cutNode)
               ss->reduction += ONE_PLY;
 
-          if (move == countermoves[0] || move == countermoves[1])
+          if (move == countermoves[0] || move == countermoves[1]||uri_ext)
               ss->reduction = std::max(DEPTH_ZERO, ss->reduction-ONE_PLY);
 
           Depth d = std::max(newDepth - ss->reduction, ONE_PLY);
