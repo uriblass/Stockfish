@@ -293,7 +293,7 @@ finalize:
             << sync_endl;
 }
 
-
+int initial_depth;
 namespace {
 
   // id_loop() is the main iterative deepening loop. It calls search() repeatedly
@@ -334,7 +334,7 @@ namespace {
     {
         // Age out PV variability metric
         BestMoveChanges *= 0.8f;
-
+		initial_depth=depth;
         // Save last iteration's scores before first PV line is searched and all
         // the move scores but the (new) PV are set to -VALUE_INFINITE.
         for (size_t i = 0; i < RootMoves.size(); i++)
@@ -824,6 +824,9 @@ moves_loop: // When in check and at SpNode search starts from here
       }
 
       ext = DEPTH_ZERO;
+	  bool not_extend=false;
+	  if (ss->ply>initial_depth&&!PvNode)
+		  not_extend=true;
       captureOrPromotion = pos.is_capture_or_promotion(move);
       givesCheck = pos.move_gives_check(move, ci);
       dangerous =   givesCheck
@@ -836,7 +839,8 @@ moves_loop: // When in check and at SpNode search starts from here
 
       else if (givesCheck && pos.see_sign(move) >= 0)
           ext = inCheck || ss->staticEval <= alpha ? ONE_PLY : ONE_PLY / 2;
-
+	  if (not_extend)
+		  ext = DEPTH_ZERO;
       // Singular extension search. If all moves but one fail low on a search of
       // (alpha-s, beta-s), and just one fails high on (alpha, beta), then that move
       // is singular and should be extended. To verify this we do a reduced search
@@ -845,6 +849,7 @@ moves_loop: // When in check and at SpNode search starts from here
       if (    singularExtensionNode
           &&  move == ttMove
           && !ext
+		  && !not_extend
           &&  pos.pl_move_is_legal(move, ci.pinned)
           &&  abs(ttValue) < VALUE_KNOWN_WIN)
       {
