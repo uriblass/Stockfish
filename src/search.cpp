@@ -826,7 +826,7 @@ moves_loop: // When in check and at SpNode search starts from here
 
       ext = DEPTH_ZERO;
 	  bool not_extend=false;
-	  if (ss->ply>initial_depth)
+	  if (ss->ply>(initial_depth*3)/2)
 		  not_extend=true;
       captureOrPromotion = pos.is_capture_or_promotion(move);
       givesCheck = pos.move_gives_check(move, ci);
