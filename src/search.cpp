@@ -844,7 +844,7 @@ moves_loop: // When in check and at SpNode search starts from here
       // a margin then we extend ttMove.
       if (    singularExtensionNode
           &&  move == ttMove
-          && !ext
+          && (ext<ONE_PLY)
           &&  pos.pl_move_is_legal(move, ci.pinned)
           &&  abs(ttValue) < VALUE_KNOWN_WIN)
       {
@@ -860,7 +860,8 @@ moves_loop: // When in check and at SpNode search starts from here
           if (value < rBeta)
               ext = ONE_PLY;
       }
-
+	  if (ext==ONE_PLY&&(ss-1)->extension == ONE_PLY && (ss-2)->extension ==ONE_PLY)
+		  ext=ONE_PLY/2;
       // Update current move (this must be done after singular extension search)
       newDepth = depth - ONE_PLY + ext;
 
@@ -986,7 +987,7 @@ moves_loop: // When in check and at SpNode search starts from here
                                      : - search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
       // Step 17. Undo move
       pos.undo_move(move);
-
+	  ss->extension = Depth(0);
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
 
       // Step 18. Check for new best move
