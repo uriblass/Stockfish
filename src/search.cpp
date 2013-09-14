@@ -674,7 +674,7 @@ namespace {
         Depth R = 3 * ONE_PLY + depth / 4;
 
         // Null move dynamic reduction based on value
-        if (eval - PawnValueMg > beta)
+        if (eval - (PawnValueMg/2) > beta)
             R += ONE_PLY;
 
         pos.do_null_move(st);
