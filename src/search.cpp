@@ -864,7 +864,7 @@ moves_loop: // When in check and at SpNode search starts from here
       // Update current move (this must be done after singular extension search)
       newDepth = depth - ONE_PLY + ext;
 	  if (type_of(move) == PROMOTION)
-		  newDepth=(newDepth*3)/4;
+		  newDepth=newDepth-ONE_PLY;
       // Step 13. Futility pruning (is omitted in PV nodes)
       if (   !PvNode
           && !captureOrPromotion
