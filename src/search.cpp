@@ -658,7 +658,7 @@ namespace {
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
         &&  abs(eval) < VALUE_KNOWN_WIN
         &&  pos.non_pawn_material(pos.side_to_move()))
-        return eval - futility_margin(depth, (ss-1)->futilityMoveCount);
+        return eval;//similiar to what we do in razoring and not changing the eval result by margin 
 
     // Step 8. Null move search with verification search (is omitted in PV nodes)
     if (   !PvNode
