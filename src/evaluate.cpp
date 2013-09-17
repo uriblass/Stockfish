@@ -175,7 +175,7 @@ namespace {
   const Score MinorBehindPawn  = make_score(16,  0);
   const Score UndefendedMinor  = make_score(25, 10);
   const Score TrappedRook      = make_score(90,  0);
-  const Score Unstoppable      = make_score( 0, 20);
+  const Score Unstoppable      = make_score( 0, 70);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -906,7 +906,7 @@ Value do_evaluate(const Position& pos, Value& margin) {
     if (!b || pos.non_pawn_material(~us))
         return SCORE_ZERO;
 
-    return Unstoppable * int(relative_rank(us, frontmost_sq(us, b)));
+    return Unstoppable;
   }
 
 
