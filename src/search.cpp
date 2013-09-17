@@ -844,7 +844,6 @@ moves_loop: // When in check and at SpNode search starts from here
       // a margin then we extend ttMove.
       if (    singularExtensionNode
           &&  move == ttMove
-          && !ext
           &&  pos.pl_move_is_legal(move, ci.pinned)
           &&  abs(ttValue) < VALUE_KNOWN_WIN)
       {
@@ -858,7 +857,7 @@ moves_loop: // When in check and at SpNode search starts from here
           ss->excludedMove = MOVE_NONE;
 
           if (value < rBeta)
-              ext = ONE_PLY;
+              ext =ext+ ONE_PLY;
       }
 
       // Update current move (this must be done after singular extension search)
