@@ -715,7 +715,11 @@ namespace {
                 && (ss-1)->reduction
                 && threatMove != MOVE_NONE
                 && allows(pos, (ss-1)->currentMove, threatMove))
-                return alpha;
+			{
+				Depth d = std::min((ss-1)->reduction, ONE_PLY);
+				(ss-1)->reduction -= d;
+				depth += d;
+			}
         }
     }
 
@@ -844,7 +848,7 @@ moves_loop: // When in check and at SpNode search starts from here
       // a margin then we extend ttMove.
       if (    singularExtensionNode
           &&  move == ttMove
-          && !ext
+          && (ext<ONE_PLY)
           &&  pos.pl_move_is_legal(move, ci.pinned)
           &&  abs(ttValue) < VALUE_KNOWN_WIN)
       {
@@ -1224,8 +1228,8 @@ moves_loop: // When in check and at SpNode search starts from here
       givesCheck = pos.move_gives_check(move, ci);
 
       // Futility pruning
-      if (   !PvNode
-          && !InCheck
+      if (  
+             !InCheck
           && !givesCheck
           &&  move != ttMove
           &&  type_of(move) != PROMOTION
