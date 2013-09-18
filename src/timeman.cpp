@@ -128,7 +128,7 @@ void TimeManager::init(const Search::LimitsType& limits, int currentPly, Color u
       t2 = minThinkingTime + remaining<MaxTime>(hypMyTime, hypMTG, currentPly, slowMover);
 
       optimumSearchTime = std::min(optimumSearchTime, t1);
-      maximumSearchTime = std::min(maximumSearchTime, t2);
+      maximumSearchTime = std::min(maximumSearchTime, std::min(t2,(limits.time[us]*9)/10));
   }
 
   if (Options["Ponder"])
