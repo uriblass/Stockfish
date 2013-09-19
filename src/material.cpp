@@ -65,8 +65,6 @@ namespace {
   // Endgame evaluation and scaling functions accessed direcly and not through
   // the function maps because correspond to more then one material hash key.
   Endgame<KmmKm> EvaluateKmmKm[] = { Endgame<KmmKm>(WHITE), Endgame<KmmKm>(BLACK) };
-  Endgame<KXK>   EvaluateKXK[]   = { Endgame<KXK>(WHITE),   Endgame<KXK>(BLACK) };
-
   Endgame<KBPsK>  ScaleKBPsK[]  = { Endgame<KBPsK>(WHITE),  Endgame<KBPsK>(BLACK) };
   Endgame<KQKRPs> ScaleKQKRPs[] = { Endgame<KQKRPs>(WHITE), Endgame<KQKRPs>(BLACK) };
   Endgame<KPsK>   ScaleKPsK[]   = { Endgame<KPsK>(WHITE),   Endgame<KPsK>(BLACK) };
@@ -160,26 +158,14 @@ Entry* probe(const Position& pos, Table& entries, Endgames& endgames) {
   // configuration one, then a generic one if previous search failed.
   if (endgames.probe(key, e->evaluationFunction))
       return e;
-
-  if (is_KXK<WHITE>(pos))
-  {
-      e->evaluationFunction = &EvaluateKXK[WHITE];
-      return e;
-  }
-
-  if (is_KXK<BLACK>(pos))
-  {
-      e->evaluationFunction = &EvaluateKXK[BLACK];
-      return e;
-  }
+  
 
   if (!pos.pieces(PAWN) && !pos.pieces(ROOK) && !pos.pieces(QUEEN))
+	  if (pos.pieces(WHITE, KNIGHT) | pos.pieces(WHITE, BISHOP))
+		  if (pos.pieces(BLACK, KNIGHT) | pos.pieces(BLACK, BISHOP))
   {
       // Minor piece endgame with at least one minor piece per side and
-      // no pawns. Note that the case KmmK is already handled by KXK.
-      assert((pos.pieces(WHITE, KNIGHT) | pos.pieces(WHITE, BISHOP)));
-      assert((pos.pieces(BLACK, KNIGHT) | pos.pieces(BLACK, BISHOP)));
-
+      // no pawns.  
       if (   pos.count<BISHOP>(WHITE) + pos.count<KNIGHT>(WHITE) <= 2
           && pos.count<BISHOP>(BLACK) + pos.count<KNIGHT>(BLACK) <= 2)
       {

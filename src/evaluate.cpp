@@ -347,7 +347,11 @@ Value do_evaluate(const Position& pos, Value& margin) {
           - evaluate_pieces_of_color<BLACK, Trace>(pos, ei, mobilityBlack);
 
   score += apply_weight(mobilityWhite - mobilityBlack, Weights[Mobility]);
-
+if (pos.pieces(pos.side_to_move(), KING) == pos.pieces(pos.side_to_move())) {
+      Bitboard kr= pos.attacks_from<KING>(pos.king_square(pos.side_to_move()));;
+      if ((kr & ei.attackedBy[~pos.side_to_move()][ALL_PIECES]) == kr)
+          return VALUE_DRAW;
+}
   // Evaluate kings after all other pieces because we need complete attack
   // information when computing the king safety evaluation.
   score +=  evaluate_king<WHITE, Trace>(pos, ei, margins)

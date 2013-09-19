@@ -91,7 +91,6 @@ Endgames::Endgames() {
 
   add<KPK>("KPK");
   add<KNNK>("KNNK");
-  add<KBNK>("KBNK");
   add<KRKP>("KRKP");
   add<KRKB>("KRKB");
   add<KRKN>("KRKN");
@@ -126,65 +125,12 @@ void Endgames::add(const string& code) {
 /// King and plenty of material vs a lone king. It simply gives the
 /// attacking side a bonus for driving the defending king towards the edge
 /// of the board, and for keeping the distance between the two kings small.
-template<>
-Value Endgame<KXK>::operator()(const Position& pos) const {
-
-  assert(pos.non_pawn_material(weakerSide) == VALUE_ZERO);
-  assert(!pos.count<PAWN>(weakerSide));
-  assert(!pos.checkers()); // Eval is never called when in check
-
-  // Stalemate detection with lone king
-  if (pos.side_to_move() == weakerSide && !MoveList<LEGAL>(pos).size())
-      return VALUE_DRAW;
-
-  Square winnerKSq = pos.king_square(strongerSide);
-  Square loserKSq = pos.king_square(weakerSide);
-
-  Value result =   pos.non_pawn_material(strongerSide)
-                 + pos.count<PAWN>(strongerSide) * PawnValueEg
-                 + PushToEdges[loserKSq]
-                 + PushClose[square_distance(winnerKSq, loserKSq)];
-
-  if (   pos.count<QUEEN>(strongerSide)
-      || pos.count<ROOK>(strongerSide)
-      || pos.bishop_pair(strongerSide))
-      result += VALUE_KNOWN_WIN;
-
-  return strongerSide == pos.side_to_move() ? result : -result;
-}
 
 
 /// Mate with KBN vs K. This is similar to KX vs K, but we have to drive the
 /// defending king towards a corner square of the right color.
-template<>
-Value Endgame<KBNK>::operator()(const Position& pos) const {
-
-  assert(pos.non_pawn_material(strongerSide) == KnightValueMg + BishopValueMg);
-  assert(pos.non_pawn_material(weakerSide) == VALUE_ZERO);
-  assert(pos.count<BISHOP>(strongerSide) == 1);
-  assert(pos.count<KNIGHT>(strongerSide) == 1);
-  assert(pos.count<  PAWN>(strongerSide) == 0);
-  assert(pos.count<  PAWN>(weakerSide  ) == 0);
-
-  Square winnerKSq = pos.king_square(strongerSide);
-  Square loserKSq = pos.king_square(weakerSide);
-  Square bishopSq = pos.list<BISHOP>(strongerSide)[0];
-
-  // kbnk_mate_table() tries to drive toward corners A1 or H8,
-  // if we have a bishop that cannot reach the above squares we
-  // mirror the kings so to drive enemy toward corners A8 or H1.
-  if (opposite_colors(bishopSq, SQ_A1))
-  {
-      winnerKSq = mirror(winnerKSq);
-      loserKSq = mirror(loserKSq);
-  }
-
-  Value result =  VALUE_KNOWN_WIN
-                + PushClose[square_distance(winnerKSq, loserKSq)]
-                + PushToCorners[loserKSq];
-
-  return strongerSide == pos.side_to_move() ? result : -result;
-}
+ 
+ 
 
 
 /// KP vs K. This endgame is evaluated with the help of a bitbase.
@@ -383,7 +329,7 @@ Value Endgame<KBBKN>::operator()(const Position& pos) const {
   Square loserKSq = pos.king_square(weakerSide);
   Square knightSq = pos.list<KNIGHT>(weakerSide)[0];
 
-  Value result =  VALUE_KNOWN_WIN
+  Value result =  BishopValueEg
                 + PushToCorners[loserKSq]
                 + PushClose[square_distance(winnerKSq, loserKSq)]
                 + PushAway[square_distance(loserKSq, knightSq)];
