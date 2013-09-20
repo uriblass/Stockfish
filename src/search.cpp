@@ -631,46 +631,46 @@ namespace {
         Square to = to_sq(move);
         Gains.update(pos.piece_on(to), to, -(ss-1)->staticEval - ss->staticEval);
     }
-	int pruningfactor=1;
-	if (pos.count<QUEEN>(~pos.side_to_move())==0)
-	{
-		pruningfactor=2;
-		if (pos.count<ROOK>(~pos.side_to_move())==0)
-		{
-			pruningfactor=3;
-			if (pos.count<BISHOP>(~pos.side_to_move())+pos.count<KNIGHT>(~pos.side_to_move())==0)
-				pruningfactor=4;
-		}
-	}
+	
 
     // Step 6. Razoring (skipped when in check)
 	
     if (   !PvNode
         &&  depth < 4 * ONE_PLY
-        &&  eval + (razor_margin(depth)/pruningfactor) < beta
+        &&  eval + razor_margin(depth) < beta
         &&  ttMove == MOVE_NONE
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
         && !pos.pawn_on_7th(pos.side_to_move()))
     {
-        Value rbeta = beta - razor_margin(depth)/pruningfactor;
+        Value rbeta = beta - razor_margin(depth);
         Value v = qsearch<NonPV, false>(pos, ss, rbeta-1, rbeta, DEPTH_ZERO);
         if (v < rbeta)
             // Logically we should return (v + razor_margin(depth)), but
             // surprisingly this did slightly weaker in tests.
             return v;
     }
-	
+	int pruningfactor=1;
+	if (pos.count<QUEEN>(pos.side_to_move())==0)
+	{
+		pruningfactor=2;
+		if (pos.count<ROOK>(pos.side_to_move())==0)
+		{
+			pruningfactor=3;
+			if (pos.count<BISHOP>(pos.side_to_move())+pos.count<KNIGHT>(pos.side_to_move())==0)
+				pruningfactor=4;
+		}
+	}
     // Step 7. Static null move pruning (skipped when in check)
     // We're betting that the opponent doesn't have a move that will reduce
     // the score by more than futility_margin(depth) if we do a null move.
     if (   !PvNode
         && !ss->skipNullMove
         &&  depth < 4 * ONE_PLY
-        &&  eval - futility_margin(depth, (ss-1)->futilityMoveCount) >= beta
+        &&  eval - futility_margin(depth, (ss-1)->futilityMoveCount)/pruningfactor >= beta
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
         &&  abs(eval) < VALUE_KNOWN_WIN
         &&  pos.non_pawn_material(pos.side_to_move()))
-        return eval - futility_margin(depth, (ss-1)->futilityMoveCount);
+        return eval - futility_margin(depth, (ss-1)->futilityMoveCount)/pruningfactor;
 
     // Step 8. Null move search with verification search (is omitted in PV nodes)
     if (   !PvNode
