@@ -649,28 +649,18 @@ namespace {
             // surprisingly this did slightly weaker in tests.
             return v;
     }
-	int pruningfactor=1;
-	if (pos.count<QUEEN>(pos.side_to_move())==0)
-	{
-		pruningfactor=2;
-		if (pos.count<ROOK>(pos.side_to_move())==0)
-		{
-			pruningfactor=3;
-			if (pos.count<BISHOP>(pos.side_to_move())+pos.count<KNIGHT>(pos.side_to_move())==0)
-				pruningfactor=4;
-		}
-	}
+	
     // Step 7. Static null move pruning (skipped when in check)
     // We're betting that the opponent doesn't have a move that will reduce
     // the score by more than futility_margin(depth) if we do a null move.
     if (   !PvNode
         && !ss->skipNullMove
         &&  depth < 4 * ONE_PLY
-        &&  eval - futility_margin(depth, (ss-1)->futilityMoveCount)/pruningfactor >= beta
+        &&  eval - futility_margin(depth, (ss-1)->futilityMoveCount) >= beta
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
         &&  abs(eval) < VALUE_KNOWN_WIN
         &&  pos.non_pawn_material(pos.side_to_move()))
-        return eval - futility_margin(depth, (ss-1)->futilityMoveCount)/pruningfactor;
+        return eval - futility_margin(depth, (ss-1)->futilityMoveCount);
 
     // Step 8. Null move search with verification search (is omitted in PV nodes)
     if (   !PvNode
@@ -735,6 +725,7 @@ namespace {
     // If we have a very good capture (i.e. SEE > seeValues[captured_piece_type])
     // and a reduced search returns a value much above beta, we can (almost) safely
     // prune the previous move.
+	
     if (   !PvNode
         &&  depth >= 5 * ONE_PLY
         && !ss->skipNullMove
@@ -894,12 +885,22 @@ moves_loop: // When in check and at SpNode search starts from here
 
               continue;
           }
-
+		  int pruningfactor=1;
+		  if (pos.count<QUEEN>(pos.side_to_move())==0)
+		  {
+			  pruningfactor=2;
+			  if (pos.count<ROOK>(pos.side_to_move())==0)
+			  {
+				  pruningfactor=3;
+				  if (pos.count<BISHOP>(pos.side_to_move())+pos.count<KNIGHT>(pos.side_to_move())==0)
+					  pruningfactor=4;
+			  }
+		  }
           // Value based pruning
           // We illogically ignore reduction condition depth >= 3*ONE_PLY for predicted depth,
           // but fixing this made program slightly weaker.
           Depth predictedDepth = newDepth - reduction<PvNode>(improving, depth, moveCount);
-          futilityValue =  ss->staticEval + ss->evalMargin + futility_margin(predictedDepth, moveCount)
+          futilityValue =  ss->staticEval + ss->evalMargin/pruningfactor + futility_margin(predictedDepth, moveCount)
                          + Gains[pos.piece_moved(move)][to_sq(move)];
 
           if (futilityValue < beta)
