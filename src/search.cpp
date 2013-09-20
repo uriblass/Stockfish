@@ -504,7 +504,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove, threatMove;
     Depth ext, newDepth;
     Value bestValue, value, ttValue;
-    Value eval, nullValue, futilityValue;
+    Value eval, nullValue, futilityValue,pruningfactor;
     bool inCheck, givesCheck, pvMove, singularExtensionNode, improving;
     bool captureOrPromotion, dangerous, doFullDepthSearch;
     int moveCount, quietCount;
@@ -885,7 +885,7 @@ moves_loop: // When in check and at SpNode search starts from here
 
               continue;
           }
-		  Value pruningfactor=Value(1);
+		  pruningfactor=Value(1);
 		  if (pos.count<QUEEN>(pos.side_to_move())==0)
 		  {
 			  pruningfactor=Value(2);
