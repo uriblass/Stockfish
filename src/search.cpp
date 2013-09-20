@@ -885,15 +885,15 @@ moves_loop: // When in check and at SpNode search starts from here
 
               continue;
           }
-		  int pruningfactor=1;
+		  Value pruningfactor=Value(1);
 		  if (pos.count<QUEEN>(pos.side_to_move())==0)
 		  {
-			  pruningfactor=2;
+			  pruningfactor=Value(2);
 			  if (pos.count<ROOK>(pos.side_to_move())==0)
 			  {
-				  pruningfactor=3;
+				  pruningfactor=Value(3);
 				  if (pos.count<BISHOP>(pos.side_to_move())+pos.count<KNIGHT>(pos.side_to_move())==0)
-					  pruningfactor=4;
+					  pruningfactor=Value(4);
 			  }
 		  }
           // Value based pruning
