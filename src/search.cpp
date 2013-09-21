@@ -900,7 +900,7 @@ moves_loop: // When in check and at SpNode search starts from here
           // We illogically ignore reduction condition depth >= 3*ONE_PLY for predicted depth,
           // but fixing this made program slightly weaker.
           Depth predictedDepth = newDepth - reduction<PvNode>(improving, depth, moveCount);
-          futilityValue =  ss->staticEval + ss->evalMargin/pruningfactor + futility_margin(predictedDepth, moveCount)
+          futilityValue =  ss->staticEval + ss->evalMargin + futility_margin(predictedDepth, moveCount)/pruningfactor
                          + Gains[pos.piece_moved(move)][to_sq(move)];
 
           if (futilityValue < beta)
