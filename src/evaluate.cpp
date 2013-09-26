@@ -882,7 +882,9 @@ Value do_evaluate(const Position& pos, Value& margin) {
         if (pos.count<ALL_PIECES>(  Us) - pos.count<PAWN>(  Us) >
             pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them))
             ebonus += ebonus / 4;
-
+	 
+		if (ebonus>=Value(400))
+			ebonus=(ebonus+Value(400))/2;
         score += make_score(mbonus, ebonus);
 
     }
