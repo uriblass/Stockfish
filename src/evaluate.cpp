@@ -310,7 +310,7 @@ Value do_evaluate(const Position& pos, Value& margin) {
 
   EvalInfo ei;
   Value margins[COLOR_NB];
-  Score score, mobilityWhite, mobilityBlack;
+  Score initialscore,score, mobilityWhite, mobilityBlack;
   Thread* th = pos.this_thread();
 
   // margins[] store the uncertainty estimation of position's evaluation
@@ -321,7 +321,7 @@ Value do_evaluate(const Position& pos, Value& margin) {
   // in the position object (material + piece square tables) and adding
   // Tempo bonus. Score is computed from the point of view of white.
   score = pos.psq_score() + (pos.side_to_move() == WHITE ? Tempo : -Tempo);
-
+  initialscore=score;
   // Probe the material hash table
   ei.mi = Material::probe(pos, th->materialTable, th->endgames);
   score += ei.mi->material_value();
@@ -399,6 +399,7 @@ Value do_evaluate(const Position& pos, Value& margin) {
   }
 
   margin = margins[pos.side_to_move()];
+  score=score-(score-initialscore)/10;
   Value v = interpolate(score, ei.mi->game_phase(), sf);
 
   // In case of tracing add all single evaluation contributions for both white and black
