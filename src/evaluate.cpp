@@ -399,7 +399,7 @@ Value do_evaluate(const Position& pos, Value& margin) {
   }
 
   margin = margins[pos.side_to_move()];
-  score=score-(score-initialscore)/10;
+  score=score+(score-initialscore)/10;
   Value v = interpolate(score, ei.mi->game_phase(), sf);
 
   // In case of tracing add all single evaluation contributions for both white and black
