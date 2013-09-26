@@ -321,11 +321,11 @@ Value do_evaluate(const Position& pos, Value& margin) {
   // in the position object (material + piece square tables) and adding
   // Tempo bonus. Score is computed from the point of view of white.
   score = pos.psq_score() + (pos.side_to_move() == WHITE ? Tempo : -Tempo);
-  initialscore=score;
+  
   // Probe the material hash table
   ei.mi = Material::probe(pos, th->materialTable, th->endgames);
   score += ei.mi->material_value();
-
+  initialscore=score;
   // If we have a specialized evaluation function for the current material
   // configuration, call it and return.
   if (ei.mi->specialized_eval_exists())
@@ -399,7 +399,7 @@ Value do_evaluate(const Position& pos, Value& margin) {
   }
 
   margin = margins[pos.side_to_move()];
-  score=score+(score-initialscore)/10;
+  score=score-(score-initialscore)/10;
   Value v = interpolate(score, ei.mi->game_phase(), sf);
 
   // In case of tracing add all single evaluation contributions for both white and black
