@@ -404,7 +404,7 @@ namespace {
 
             // Sort the PV lines searched so far and update the GUI
             std::stable_sort(RootMoves.begin(), RootMoves.begin() + PVIdx + 1);
-
+			if (depth>=10)
             if (PVIdx + 1 == PVSize || Time::now() - SearchTime > 3000)
                 sync_cout << uci_pv(pos, depth, alpha, beta) << sync_endl;
         }
