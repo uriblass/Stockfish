@@ -321,7 +321,7 @@ namespace {
 
     PVSize = Options["MultiPV"];
     Skill skill(Options["Skill Level"]);
-
+	Time::point timenow;
     // Do we have to play with skill handicap? In this case enable MultiPV search
     // that we will use behind the scenes to retrieve a set of possible moves.
     if (skill.enabled() && PVSize < 4)
@@ -434,7 +434,8 @@ namespace {
         if (Limits.use_time_management() && !Signals.stopOnPonderhit)
         {
             bool stop = false; // Local variable, not the volatile Signals.stop
-
+			TimeMgr.updatenodefactor((RootPos.nodes_searched()*1.4f+250000)/(RootPos.nodes_searched()+350000),Limits.inc[RootColor]);
+			timenow=Time::now();
             // Take in account some extra time if the best move has changed
             if (depth > 4 && depth < 50 &&  PVSize == 1)
                 TimeMgr.pv_instability(BestMoveChanges);
@@ -442,7 +443,7 @@ namespace {
             // Stop search if most of available time is already consumed. We
             // probably don't have enough time to search the first move at the
             // next iteration anyway.
-            if (Time::now() - SearchTime > (TimeMgr.available_time() * 62) / 100)
+            if (timenow - SearchTime > (TimeMgr.available_time() * 62) / 100)
                 stop = true;
 
             // Stop search early if one move seems to be much better than others
@@ -451,7 +452,7 @@ namespace {
                 &&  PVSize == 1
                 &&  bestValue > VALUE_MATED_IN_MAX_PLY
                 && (   RootMoves.size() == 1
-                    || Time::now() - SearchTime > (TimeMgr.available_time() * 20) / 100))
+                    || timenow - SearchTime > (TimeMgr.available_time() * 20) / 100))
             {
                 Value rBeta = bestValue - 2 * PawnValueMg;
                 ss->excludedMove = RootMoves[0].pv[0];
