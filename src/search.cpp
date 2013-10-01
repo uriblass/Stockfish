@@ -434,7 +434,7 @@ namespace {
         if (Limits.use_time_management() && !Signals.stopOnPonderhit)
         {
             bool stop = false; // Local variable, not the volatile Signals.stop
-			TimeMgr.updatenodefactor((RootPos.nodes_searched()*1.4f+250000)/(RootPos.nodes_searched()+350000),Limits.inc[RootColor]);
+			TimeMgr.updatenodefactor((RootPos.nodes_searched()*1.4f+350000)/(RootPos.nodes_searched()+350000),Limits.inc[RootColor]);
 			timenow=Time::now();
             // Take in account some extra time if the best move has changed
             if (depth > 4 && depth < 50 &&  PVSize == 1)

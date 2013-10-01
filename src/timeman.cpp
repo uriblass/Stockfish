@@ -113,7 +113,7 @@ void TimeManager::init(const Search::LimitsType& limits, int currentPly, Color u
 
   // Initialize to maximum values but unstablePVExtraTime that is reset
   unstablePVExtraTime = 0;
-  nodefactor=5.0f/7.0f;
+  nodefactor=1.0f;
   optimumSearchTime = maximumSearchTime = limits.time[us];
 
   // We calculate optimum time usage for different hypothetic "moves to go"-values and choose the
