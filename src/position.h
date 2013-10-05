@@ -163,7 +163,7 @@ public:
   int64_t nodes_searched() const;
   void set_nodes_searched(int64_t n);
   bool is_draw() const;
-
+  int rule_50_num() const;
   // Position consistency check, for debugging
   bool pos_is_ok(int* failedStep = NULL) const;
   void flip();

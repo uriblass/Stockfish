@@ -941,7 +941,8 @@ moves_loop: // When in check and at SpNode search starts from here
           &&  move != ss->killers[1])
       {
           ss->reduction = reduction<PvNode>(improving, depth, moveCount);
-
+		  if (pos.rule_50_num()>20)
+			  ss->reduction += ONE_PLY;
           if (!PvNode && cutNode)
               ss->reduction += ONE_PLY;
 
