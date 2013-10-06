@@ -941,10 +941,10 @@ moves_loop: // When in check and at SpNode search starts from here
           &&  move != ss->killers[1])
       {
           ss->reduction = reduction<PvNode>(improving, depth, moveCount);
-
+		  if (pos.rule_50_num()>0)
+			  ss->reduction += ONE_PLY;
           if (!PvNode && cutNode)
               ss->reduction += ONE_PLY;
-
           else if (History[pos.piece_on(to_sq(move))][to_sq(move)] < 0)
               ss->reduction += ONE_PLY / 2;
 

@@ -1289,7 +1289,9 @@ bool Position::is_draw() const {
   return false;
 }
 
-
+int Position::rule_50_num() const {
+	return st->rule50;
+}
 /// Position::flip() flips position with the white and black sides reversed. This
 /// is only useful for debugging especially for finding evaluation symmetry bugs.
 
