@@ -118,7 +118,7 @@ void TimeManager::init(const Search::LimitsType& limits, int currentPly, Color u
   {
       // Calculate thinking time for hypothetic "moves to go"-value
       hypMyTime =  limits.time[us]
-                 + limits.inc[us] * (hypMTG - 1)
+                 + limits.inc[us] * (hypMTG - 2)
                  - emergencyBaseTime
                  - emergencyMoveTime * std::min(hypMTG, emergencyMoveHorizon);
 
