@@ -433,8 +433,7 @@ namespace {
                 stop = true;
 
             // Set easy flag to be true if one move seems to be much better than others
-            if (    depth >= 12
-                &&  BestMoveChanges <= DBL_EPSILON
+            if (    depth == 12
                 && !stop
                 &&  PVSize == 1
                 &&  bestValue > VALUE_MATED_IN_MAX_PLY
