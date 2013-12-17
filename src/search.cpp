@@ -433,7 +433,7 @@ namespace {
                 stop = true;
 
             // Set easy flag to be true if one move seems to be much better than others
-            if (    depth == 12
+            if (    depth >= 12
                 && !stop
                 &&  PVSize == 1
                 &&  bestValue > VALUE_MATED_IN_MAX_PLY
@@ -992,7 +992,10 @@ moves_loop: // When in check and at SpNode search starts from here
               // iteration. This information is used for time management: When
               // the best move changes frequently, we allocate some more time.
               if (!pvMove)
+			  {
                   ++BestMoveChanges;
+				  easymove=false;
+			  }
           }
           else
               // All other moves but the PV are set to the lowest value: this is
