@@ -437,7 +437,7 @@ namespace {
                 && !stop
                 &&  PVSize == 1
                 &&  bestValue > VALUE_MATED_IN_MAX_PLY
-				&& !easymove)
+				&& (RootMoves.size() > 1))
             {
                 Value rBeta = bestValue - 2 * PawnValueMg;
                 ss->excludedMove = RootMoves[0].pv[0];
