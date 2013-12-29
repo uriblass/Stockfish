@@ -991,7 +991,10 @@ moves_loop: // When in check and at SpNode search starts from here
               // iteration. This information is used for time management: When
               // the best move changes frequently, we allocate some more time.
               if (!pvMove)
+			  {
                   ++BestMoveChanges;
+				  easymove=false;
+			  }
           }
           else
               // All other moves but the PV are set to the lowest value: this is
