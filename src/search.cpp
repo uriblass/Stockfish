@@ -445,9 +445,7 @@ namespace {
                 Value v = search<NonPV>(pos, ss, rBeta - 1, rBeta, (depth - 3) * ONE_PLY, true);
                 ss->skipNullMove = false;
                 ss->excludedMove = MOVE_NONE;
-
-                if (v < rBeta)
-                    easymove = true;
+                easymove= (v < rBeta);
             }
 
             if (stop)
