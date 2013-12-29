@@ -433,12 +433,11 @@ namespace {
                 stop = true;
 
             // Set easy flag to be true if one move seems to be much better than others
-            if (    depth == 12
-                
+            if (((depth==12)||(depth>12&&easymove))
+                && (RootMoves.size()> 1)
                 && !stop
                 &&  PVSize == 1
-                &&  bestValue > VALUE_MATED_IN_MAX_PLY
-                && (!easymove))
+                &&  bestValue > VALUE_MATED_IN_MAX_PLY)
             {
                 Value rBeta = bestValue - 2 * PawnValueMg;
                 ss->excludedMove = RootMoves[0].pv[0];
@@ -1643,7 +1642,7 @@ void check_time() {
                          &&  elapsed > TimeMgr.available_time();
 
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
-                   || stillAtFirstMove||(easymove&&(elapsed>(TimeMgr.available_time() * 30) / 100));
+                   || stillAtFirstMove||(easymove&&(elapsed>(TimeMgr.available_time() * 20) / 100));
 
   if (   (Limits.use_time_management() && noMoreTime)
       || (Limits.movetime && elapsed >= Limits.movetime)
