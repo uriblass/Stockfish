@@ -80,6 +80,7 @@ namespace {
   size_t PVSize, PVIdx;
   TimeManager TimeMgr;
   double BestMoveChanges;
+  bool easymove;
   Value DrawValue[COLOR_NB];
   HistoryStats History;
   GainsStats Gains;
@@ -313,7 +314,7 @@ namespace {
         PVSize = 4;
 
     PVSize = std::min(PVSize, RootMoves.size());
-
+	easymove= (RootMoves.size() == 1);
     // Iterative deepening loop until requested to stop or target depth reached
     while (++depth <= MAX_PLY && !Signals.stop && (!Limits.depth || depth <= Limits.depth))
     {
@@ -431,14 +432,13 @@ namespace {
             if (Time::now() - SearchTime > (TimeMgr.available_time() * 62) / 100)
                 stop = true;
 
-            // Stop the search early if one move seems to be much better than others
-            if (    depth >= 12
-                &&  BestMoveChanges <= DBL_EPSILON
+            // Set easy flag to be true if one move seems to be much better than others
+            if (    depth == 12
+                
                 && !stop
                 &&  PVSize == 1
                 &&  bestValue > VALUE_MATED_IN_MAX_PLY
-                && (   RootMoves.size() == 1
-                    || Time::now() - SearchTime > (TimeMgr.available_time() * 20) / 100))
+                && (!easymove))
             {
                 Value rBeta = bestValue - 2 * PawnValueMg;
                 ss->excludedMove = RootMoves[0].pv[0];
@@ -448,7 +448,7 @@ namespace {
                 ss->excludedMove = MOVE_NONE;
 
                 if (v < rBeta)
-                    stop = true;
+                    easymove = true;
             }
 
             if (stop)
@@ -1643,7 +1643,7 @@ void check_time() {
                          &&  elapsed > TimeMgr.available_time();
 
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
-                   || stillAtFirstMove;
+                   || stillAtFirstMove||(easymove&&(elapsed>(TimeMgr.available_time() * 30) / 100));
 
   if (   (Limits.use_time_management() && noMoreTime)
       || (Limits.movetime && elapsed >= Limits.movetime)
