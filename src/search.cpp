@@ -1641,7 +1641,7 @@ void check_time() {
                          &&  elapsed > TimeMgr.available_time();
 
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
-                    || stillAtFirstMove||(easymove&&(elapsed>(TimeMgr.available_time() * 50) / 100));
+                    || stillAtFirstMove||(easymove&&(elapsed>(TimeMgr.available_time() * 40) / 100));
 
   if (   (Limits.use_time_management() && noMoreTime)
       || (Limits.movetime && elapsed >= Limits.movetime)
