@@ -80,6 +80,7 @@ namespace {
   size_t PVSize, PVIdx;
   TimeManager TimeMgr;
   double BestMoveChanges;
+  bool easymove;
   Value DrawValue[COLOR_NB];
   HistoryStats History;
   GainsStats Gains;
@@ -313,7 +314,7 @@ namespace {
         PVSize = 4;
 
     PVSize = std::min(PVSize, RootMoves.size());
-
+	easymove= (RootMoves.size() == 1);
     // Iterative deepening loop until requested to stop or target depth reached
     while (++depth <= MAX_PLY && !Signals.stop && (!Limits.depth || depth <= Limits.depth))
     {
@@ -431,14 +432,12 @@ namespace {
             if (Time::now() - SearchTime > (TimeMgr.available_time() * 62) / 100)
                 stop = true;
 
-            // Stop the search early if one move seems to be much better than others
-            if (    depth >= 12
-                &&  BestMoveChanges <= DBL_EPSILON
+             // Set easy flag to be true if one move seems to be much better than others
+            if ((depth>=12) 
                 && !stop
                 &&  PVSize == 1
-                &&  bestValue > VALUE_MATED_IN_MAX_PLY
-                && (   RootMoves.size() == 1
-                    || Time::now() - SearchTime > (TimeMgr.available_time() * 20) / 100))
+				&& (RootMoves.size()> 1)
+                &&  bestValue > VALUE_MATED_IN_MAX_PLY)
             {
                 Value rBeta = bestValue - 2 * PawnValueMg;
                 ss->excludedMove = RootMoves[0].pv[0];
@@ -446,10 +445,11 @@ namespace {
                 Value v = search<NonPV>(pos, ss, rBeta - 1, rBeta, (depth - 3) * ONE_PLY, true);
                 ss->skipNullMove = false;
                 ss->excludedMove = MOVE_NONE;
-
-                if (v < rBeta)
-                    stop = true;
+				easymove= (v < rBeta);
             }
+			 if (easymove)
+				if (Time::now() - SearchTime > (TimeMgr.available_time() * 20) / 100)
+                    stop = true;
 
             if (stop)
             {
@@ -993,7 +993,10 @@ moves_loop: // When in check and at SpNode search starts from here
               // iteration. This information is used for time management: When
               // the best move changes frequently, we allocate some more time.
               if (!pvMove)
+			  {
                   ++BestMoveChanges;
+				  easymove=false;
+			  }
           }
           else
               // All other moves but the PV are set to the lowest value: this is
@@ -1637,7 +1640,7 @@ void check_time() {
   Time::point elapsed = Time::now() - SearchTime;
   bool stillAtFirstMove =    Signals.firstRootMove
                          && !Signals.failedLowAtRoot
-                         &&  elapsed > TimeMgr.available_time();
+                         &&  ((elapsed > TimeMgr.available_time())||(easymove&&(elapsed*3 > TimeMgr.available_time())));
 
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
                    || stillAtFirstMove;
