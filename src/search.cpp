@@ -428,7 +428,7 @@ namespace {
             // Stop the search if most of the available time has been used. We
             // probably don't have enough time to search the first move at the
             // next iteration anyway.
-            if (Time::now() - SearchTime > (TimeMgr.available_time() * 62) / 100)
+            if (Time::now() - SearchTime > (TimeMgr.available_time() * 70) / 100)
                 stop = true;
 
             // Stop the search early if one move seems to be much better than others
@@ -1637,7 +1637,7 @@ void check_time() {
   Time::point elapsed = Time::now() - SearchTime;
   bool stillAtFirstMove =    Signals.firstRootMove
                          && !Signals.failedLowAtRoot
-                         &&  elapsed > (TimeMgr.available_time()*0.62);
+                         &&  elapsed > (TimeMgr.available_time()*0.7);
 
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
                    || stillAtFirstMove;
