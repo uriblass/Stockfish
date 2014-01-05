@@ -117,7 +117,7 @@ namespace {
 
 
 /// Search::init() is called during startup to initialize various lookup tables
-Time::point end_iteration_time;
+Time::point end_iteration_time=0;
 void Search::init() {
 
   int d;  // depth (ONE_PLY == 2)
