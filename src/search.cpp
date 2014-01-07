@@ -117,7 +117,7 @@ namespace {
 
 
 /// Search::init() is called during startup to initialize various lookup tables
-
+Time::point end_iteration_time=0;
 void Search::init() {
 
   int d;  // depth (ONE_PLY == 2)
@@ -416,7 +416,7 @@ namespace {
             && bestValue >= VALUE_MATE_IN_MAX_PLY
             && VALUE_MATE - bestValue <= 2 * Limits.mate)
             Signals.stop = true;
-
+		end_iteration_time=Time::now() - SearchTime;
         // Do we have time for the next iteration? Can we stop searching now?
         if (Limits.use_time_management() && !Signals.stop && !Signals.stopOnPonderhit)
         {
@@ -431,7 +431,7 @@ namespace {
             // probably don't have enough time to search the first move at the
             // next iteration anyway.
             if (   RootMoves.size() == 1
-				||(Time::now() - SearchTime > (TimeMgr.available_time() * 70) / 100))
+				||(end_iteration_time > (TimeMgr.available_time() * 62) / 100))
                 stop = true;
 
             if (stop)
@@ -1611,7 +1611,9 @@ void check_time() {
   Time::point elapsed = Time::now() - SearchTime;
   bool stillAtFirstMove =    Signals.firstRootMove
                          && !Signals.failedLowAtRoot
-                         &&  elapsed > ((TimeMgr.available_time() * 70) / 100);
+						 &&  (elapsed > TimeMgr.available_time()||
+                           ((elapsed > (TimeMgr.available_time() * 62) / 100)
+						   &&(elapsed>end_iteration_time*1.4)));
 
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
                    || stillAtFirstMove;
