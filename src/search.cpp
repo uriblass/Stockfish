@@ -1612,7 +1612,7 @@ void check_time() {
   Time::point elapsed = Time::now() - SearchTime;
   bool stillAtFirstMove =    Signals.firstRootMove
                          && !Signals.failedLowAtRoot
-                         &&  elapsed > (TimeMgr.available_time() * 62) / 100
+                         &&  elapsed > (TimeMgr.available_time() * 50) / 100
                          &&  elapsed > IterationTime * 1.4;
 
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
