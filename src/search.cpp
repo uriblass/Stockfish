@@ -1614,10 +1614,13 @@ void check_time() {
                          && !Signals.failedLowAtRoot
                          &&  elapsed > (TimeMgr.available_time() * 62) / 100
                          &&  elapsed > IterationTime * 1.4;
-
+  bool maybehash=Signals.firstRootMove
+                         && !Signals.failedLowAtRoot
+						 &&elapsed > IterationTime * 5
+						 &&elapsed > (TimeMgr.available_time() * 31) / 100;
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
-                   || stillAtFirstMove;
-
+                   || stillAtFirstMove||maybehash;
+  
   if (   (Limits.use_time_management() && noMoreTime)
       || (Limits.movetime && elapsed >= Limits.movetime)
       || (Limits.nodes && nodes >= Limits.nodes))
