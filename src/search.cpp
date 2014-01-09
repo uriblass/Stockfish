@@ -1613,7 +1613,7 @@ void check_time() {
   bool stillAtFirstMove =    Signals.firstRootMove
                          && !Signals.failedLowAtRoot
                          &&  elapsed > (TimeMgr.available_time()*62/100)
-						 &&  elapsed > IterationTime * 1.2;
+						 &&  elapsed > IterationTime * 1.6;
 
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
                    || stillAtFirstMove;
