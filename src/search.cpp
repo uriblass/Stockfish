@@ -43,7 +43,7 @@ namespace Search {
   std::vector<RootMove> RootMoves;
   Position RootPos;
   Color RootColor;
-  Time::point SearchTime, IterationTime;
+  Time::point SearchTime, IterationTime,FirstMoveTime;
   StateStackPtr SetupStates;
 }
 
@@ -297,6 +297,7 @@ namespace {
 
     depth = 0;
     BestMoveChanges = 0;
+	FirstMoveTime=0;
     bestValue = delta = alpha = -VALUE_INFINITE;
     beta = VALUE_INFINITE;
 
@@ -434,6 +435,10 @@ namespace {
             if (   RootMoves.size() == 1
                 || IterationTime > (TimeMgr.available_time() * 62) / 100)
                 stop = true;
+			if (FirstMoveTime>IterationTime*0.95&&
+				IterationTime >(TimeMgr.available_time() * 31) / 100)
+				stop=true;
+
 
             if (stop)
             {
@@ -757,7 +762,6 @@ moves_loop: // When in check and at SpNode search starts from here
       if (RootNode)
       {
           Signals.firstRootMove = (moveCount == 1);
-
           if (thisThread == Threads.main() && Time::now() - SearchTime > 3000)
               sync_cout << "info depth " << depth / ONE_PLY
                         << " currmove " << move_to_uci(move, pos.is_chess960())
@@ -1614,12 +1618,10 @@ void check_time() {
                          && !Signals.failedLowAtRoot
                          && elapsed > TimeMgr.available_time()*62/100
                          && elapsed > IterationTime * 1.4;
-  bool longatFirstMove=  Signals.firstRootMove
-                         && !Signals.failedLowAtRoot
-						 && elapsed > TimeMgr.available_time()*31/100
-						 && elapsed > IterationTime * 5;
+  if (Signals.firstRootMove=true)
+	  FirstMoveTime=elapsed;
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
-                   || stillAtFirstMove||longatFirstMove;
+                   || stillAtFirstMove;
 
   if (   (Limits.use_time_management() && noMoreTime)
       || (Limits.movetime && elapsed >= Limits.movetime)
