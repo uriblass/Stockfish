@@ -431,10 +431,10 @@ namespace {
             // of the available time has been used. We probably don't have
             // enough time to search the first move at the next iteration anyway.
             if (   RootMoves.size() == 1
-                || IterationTime > (TimeMgr.available_time() * 75) / 100)
+                || IterationTime > (TimeMgr.available_time() * 62) / 100)
                 stop = true;
 			if (Signals.neverfailedLowAtRoot==true&&
-				IterationTime > (TimeMgr.available_time() * 62) / 100)
+				IterationTime > (TimeMgr.available_time() * 50) / 100)
 				stop=true;
 
             if (stop)
