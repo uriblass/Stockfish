@@ -435,7 +435,7 @@ namespace {
             if (   RootMoves.size() == 1
                 || IterationTime > (TimeMgr.available_time() * 62) / 100)
                 stop = true;
-			if (FirstMoveTime>IterationTime*0.95&&
+			if (FirstMoveTime>(IterationTime*99)/100&&
 				IterationTime >(TimeMgr.available_time() * 31) / 100)
 				stop=true;
 
