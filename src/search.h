@@ -88,7 +88,7 @@ struct LimitsType {
 /// typically in an async fashion e.g. to stop the search by the GUI.
 
 struct SignalsType {
-  bool stopOnPonderhit, firstRootMove, stop, failedLowAtRoot;
+  bool stopOnPonderhit, firstRootMove, stop, neverfailedLowAtRoot;
 };
 
 typedef std::auto_ptr<std::stack<StateInfo> > StateStackPtr;

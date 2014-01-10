@@ -299,7 +299,6 @@ namespace {
     BestMoveChanges = 0;
     bestValue = delta = alpha = -VALUE_INFINITE;
     beta = VALUE_INFINITE;
-
     TT.new_search();
     History.clear();
     Gains.clear();
@@ -375,7 +374,7 @@ namespace {
                 {
                     alpha = std::max(bestValue - delta, -VALUE_INFINITE);
 
-                    Signals.failedLowAtRoot = true;
+                    Signals.neverfailedLowAtRoot = false;
                     Signals.stopOnPonderhit = false;
                 }
                 else if (bestValue >= beta)
@@ -432,8 +431,11 @@ namespace {
             // of the available time has been used. We probably don't have
             // enough time to search the first move at the next iteration anyway.
             if (   RootMoves.size() == 1
-                || IterationTime > (TimeMgr.available_time() * 62) / 100)
+                || IterationTime > (TimeMgr.available_time() * 75) / 100)
                 stop = true;
+			if (Signals.neverfailedLowAtRoot==true&&
+				IterationTime > (TimeMgr.available_time() * 62) / 100)
+				stop=true;
 
             if (stop)
             {
@@ -1611,11 +1613,9 @@ void check_time() {
 
   Time::point elapsed = Time::now() - SearchTime;
   bool stillAtFirstMove =    Signals.firstRootMove
-                         && !Signals.failedLowAtRoot
-                         && (   elapsed > TimeMgr.available_time()
-                             || (   elapsed > (TimeMgr.available_time() * 62) / 100
-                                 && elapsed > IterationTime * 1.4));
-
+                         && Signals.neverfailedLowAtRoot
+                         &&  elapsed > (TimeMgr.available_time() * 62) / 100
+                                 && (elapsed > IterationTime * 1.4);
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
                    || stillAtFirstMove;
 
