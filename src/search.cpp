@@ -319,7 +319,7 @@ namespace {
     {
         // Age out PV variability metric
         BestMoveChanges *= 0.8;
-
+		Signals.failLowNow=false;
         // Save the last iteration's scores before first PV line is searched and
         // all the move scores except the (new) PV are set to -VALUE_INFINITE.
         for (size_t i = 0; i < RootMoves.size(); ++i)
@@ -373,7 +373,7 @@ namespace {
                 if (bestValue <= alpha)
                 {
                     alpha = std::max(bestValue - delta, -VALUE_INFINITE);
-
+					Signals.failLowNow=true;
                     Signals.neverfailedLowAtRoot = false;
                     Signals.stopOnPonderhit = false;
                 }
@@ -1616,8 +1616,11 @@ void check_time() {
                          && Signals.neverfailedLowAtRoot
                          &&  elapsed > (TimeMgr.available_time() * 62) / 100
                                  && (elapsed > IterationTime * 1.4);
+  bool stillAtFirstMove2=Signals.firstRootMove
+	                    &&!Signals.failLowNow
+	                    && elapsed > TimeMgr.available_time();
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
-                   || stillAtFirstMove;
+                   || stillAtFirstMove||stillAtFirstMove2;
 
   if (   (Limits.use_time_management() && noMoreTime)
       || (Limits.movetime && elapsed >= Limits.movetime)
