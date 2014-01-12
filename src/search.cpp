@@ -80,6 +80,7 @@ namespace {
   size_t PVSize, PVIdx;
   TimeManager TimeMgr;
   double BestMoveChanges;
+  int NoFailLowRoot;
   Value DrawValue[COLOR_NB];
   HistoryStats History;
   GainsStats Gains;
@@ -297,6 +298,7 @@ namespace {
 
     depth = 0;
     BestMoveChanges = 0;
+	NoFailLowRoot = 0;
     bestValue = delta = alpha = -VALUE_INFINITE;
     beta = VALUE_INFINITE;
 
@@ -320,7 +322,7 @@ namespace {
     {
         // Age out PV variability metric
         BestMoveChanges *= 0.8;
-		Signals.failedLowAtRoot=false;
+		NoFailLowRoot++;
         // Save the last iteration's scores before first PV line is searched and
         // all the move scores except the (new) PV are set to -VALUE_INFINITE.
         for (size_t i = 0; i < RootMoves.size(); ++i)
@@ -374,8 +376,7 @@ namespace {
                 if (bestValue <= alpha)
                 {
                     alpha = std::max(bestValue - delta, -VALUE_INFINITE);
-
-                    Signals.failedLowAtRoot = true;
+					NoFailLowRoot=0;
                     Signals.stopOnPonderhit = false;
                 }
                 else if (bestValue >= beta)
@@ -1611,7 +1612,7 @@ void check_time() {
 
   Time::point elapsed = Time::now() - SearchTime;
   bool stillAtFirstMove =    Signals.firstRootMove
-                         && !Signals.failedLowAtRoot
+                         && NoFailLowRoot>6
                          && (   elapsed > TimeMgr.available_time()
                              || (   elapsed > (TimeMgr.available_time() * 62) / 100
                                  && elapsed > IterationTime * 1.4));
