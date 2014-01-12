@@ -320,7 +320,7 @@ namespace {
     {
         // Age out PV variability metric
         BestMoveChanges *= 0.8;
-
+		Signals.failedLowAtRoot=false;
         // Save the last iteration's scores before first PV line is searched and
         // all the move scores except the (new) PV are set to -VALUE_INFINITE.
         for (size_t i = 0; i < RootMoves.size(); ++i)
