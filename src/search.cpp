@@ -1623,6 +1623,7 @@ void check_time() {
   Time::point elapsed = Time::now() - SearchTime;
   bool stillAtFirstMove =    Signals.firstRootMove
                          && !Signals.failedLowAtRoot
+						 && BestMoveChanges==0
                          && (   elapsed > TimeMgr.available_time()
                              || (   elapsed > (TimeMgr.available_time() * 62) / 100
                                  && elapsed > IterationTime * 1.4));
