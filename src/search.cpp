@@ -80,6 +80,7 @@ namespace {
   size_t PVSize, PVIdx;
   TimeManager TimeMgr;
   double BestMoveChanges;
+  int64_t nodes_first,nodes_rest;
   Value DrawValue[COLOR_NB];
   HistoryStats History;
   GainsStats Gains;
@@ -297,6 +298,7 @@ namespace {
 
     depth = 0;
     BestMoveChanges = 0;
+	nodes_rest=0;
     bestValue = delta = alpha = -VALUE_INFINITE;
     beta = VALUE_INFINITE;
 
@@ -435,6 +437,10 @@ namespace {
             if (   RootMoves.size() == 1
                 || IterationTime > (TimeMgr.available_time() * 62) / 100)
                 stop = true;
+			nodes_rest+=(pos.nodes_searched()-nodes_first);
+			if (pos.nodes_searched()>nodes_rest*10
+				&&IterationTime > (TimeMgr.available_time() * 31) / 100)
+				stop=true;
 
             if (stop)
             {
@@ -762,7 +768,8 @@ moves_loop: // When in check and at SpNode search starts from here
       if (RootNode)
       {
           Signals.firstRootMove = (moveCount == 1);
-
+		  if (moveCount==2)
+			  nodes_first=pos.nodes_searched();
           if (thisThread == Threads.main() && Time::now() - SearchTime > 3000)
               sync_cout << "info depth " << depth / ONE_PLY
                         << " currmove " << move_to_uci(move, pos.is_chess960())
