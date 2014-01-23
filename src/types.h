@@ -89,7 +89,7 @@ typedef uint64_t Key;
 typedef uint64_t Bitboard;
 
 const int MAX_MOVES      = 256;
-const int MAX_PLY        = 100;
+const int MAX_PLY        = 200;
 const int MAX_PLY_PLUS_6 = MAX_PLY + 6;
 
 /// A move needs 16 bits to be stored
@@ -155,7 +155,7 @@ enum Bound {
 enum Value {
   VALUE_ZERO      = 0,
   VALUE_DRAW      = 0,
-  VALUE_KNOWN_WIN = 15000,
+  VALUE_KNOWN_WIN = 10000,
   VALUE_MATE      = 30000,
   VALUE_INFINITE  = 30001,
   VALUE_NONE      = 30002,
