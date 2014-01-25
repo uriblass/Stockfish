@@ -624,12 +624,13 @@ namespace {
         &&  depth >= 2 * ONE_PLY
         &&  eval >= beta
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
-        &&  pos.non_pawn_material(pos.side_to_move()))
+        &&  pos.non_pawn_material(pos.side_to_move())
+		&& ((depth<10)||MoveList<LEGAL>(pos).size() > 9))
     {
         ss->currentMove = MOVE_NULL;
 
         // Null move dynamic reduction based on depth
-        Depth R = 3 * ONE_PLY + depth / 8;
+        Depth R = 3 * ONE_PLY + depth / 4;
 
         // Null move dynamic reduction based on value
         if (eval - PawnValueMg > beta)
