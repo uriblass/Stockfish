@@ -632,9 +632,8 @@ namespace {
 
         // Null move dynamic reduction based on depth and value
         Depth R =  3 * ONE_PLY
-                 + depth / 4
+                 + 2 * ONE_PLY / 4
                  + int(eval - beta) / PawnValueMg * ONE_PLY;
-
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
         nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -alpha, DEPTH_ZERO)
