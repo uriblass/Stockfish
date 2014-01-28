@@ -631,8 +631,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R =  3 * ONE_PLY
-                 + 2 * ONE_PLY / 4
+        Depth R =  5 * ONE_PLY
                  + int(eval - beta) / PawnValueMg * ONE_PLY;
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
