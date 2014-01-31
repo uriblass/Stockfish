@@ -30,8 +30,8 @@ namespace {
   /// Constants
 
   const int MoveHorizon   = 50;   // Plan time management at most this many moves ahead
-  const double MaxRatio   = 7.0;  // When in trouble, we can step over reserved time with this ratio
-  const double StealRatio = 0.33; // However we must not steal time from remaining moves over this ratio
+  const double MaxRatio   = 21.0;  // When in trouble, we can step over reserved time with this ratio
+  const double StealRatio = 1.0; // However we must not steal time from remaining moves over this ratio
 
   const double xscale     = 9.3;
   const double xshift     = 59.8;
@@ -60,7 +60,7 @@ namespace {
 
 void TimeManager::pv_instability(double bestMoveChanges) {
 
-  unstablePVExtraTime = int(bestMoveChanges * optimumSearchTime / 1.4);
+  unstablePVExtraTime = int(bestMoveChanges * optimumSearchTime);
 }
 
 
