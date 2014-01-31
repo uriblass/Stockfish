@@ -624,17 +624,18 @@ namespace {
         &&  depth >= 2 * ONE_PLY
         &&  eval >= beta
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
-        &&  pos.non_pawn_material(pos.side_to_move()))
+        &&  pos.non_pawn_material(pos.side_to_move())
+		&&  (depth<=14*ONE_PLY||
+		(eval - beta)< PawnValueMg*3||
+		MoveList<LEGAL>(pos).size() > 9))
     {
         ss->currentMove = MOVE_NULL;
 
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R =  3 * ONE_PLY
-                 + depth / 4
+        Depth R =  3 * ONE_PLY + depth / 4
                  + int(eval - beta) / PawnValueMg * ONE_PLY;
-
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
         nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -alpha, DEPTH_ZERO)
