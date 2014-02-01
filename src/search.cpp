@@ -631,9 +631,9 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R =  3 * ONE_PLY
+        Depth R = std::min(3 * ONE_PLY
                  + depth / 4
-                 + int(eval - beta) / PawnValueMg * ONE_PLY;
+                 + int(eval - beta) / PawnValueMg * ONE_PLY,10*ONE_PLY);
 
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
@@ -653,8 +653,7 @@ namespace {
 
             // Do verification search at high depths
             ss->skipNullMove = true;
-            Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, alpha, beta, DEPTH_ZERO)
-                                        :  search<NonPV>(pos, ss, alpha, beta, depth-R, false);
+            Value v =  search<NonPV>(pos, ss, alpha, beta, depth-R, false);
             ss->skipNullMove = false;
 
             if (v >= beta)
