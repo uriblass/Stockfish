@@ -625,8 +625,7 @@ namespace {
         &&  eval >= beta
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
         &&  pos.non_pawn_material(pos.side_to_move())
-		&&  (depth<=14*ONE_PLY||
-		MoveList<LEGAL>(pos).size() > 14))
+		&&  ((depth<12*ONE_PLY)||(int)MoveList<LEGAL>(pos).size() > depth/ONE_PLY))
     {
         ss->currentMove = MOVE_NULL;
 
@@ -647,18 +646,7 @@ namespace {
             // Do not return unproven mate scores
             if (nullValue >= VALUE_MATE_IN_MAX_PLY)
                 nullValue = beta;
-
-            if (depth < 12 * ONE_PLY)
-                return nullValue;
-
-            // Do verification search at high depths
-            ss->skipNullMove = true;
-            Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, alpha, beta, DEPTH_ZERO)
-                                        :  search<NonPV>(pos, ss, alpha, beta, depth-R, false);
-            ss->skipNullMove = false;
-
-            if (v >= beta)
-                return nullValue;
+            return nullValue;
         }
     }
 
