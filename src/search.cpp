@@ -617,11 +617,6 @@ namespace {
         &&  abs(eval) < VALUE_KNOWN_WIN
         &&  pos.non_pawn_material(pos.side_to_move()))
         return eval - futility_margin(depth);
-	int zugzwang_R=10;
-	if (depth>=14*ONE_PLY)
-		zugzwang_R=(MoveList<LEGAL>(pos).size()-
-		pos.count<QUEEN>(pos.side_to_move())*3-pos.count<ROOK>(pos.side_to_move())*2-
-		pos.count<BISHOP>(pos.side_to_move())-pos.count<KNIGHT>(pos.side_to_move())-pos.count<PAWN>(pos.side_to_move())/2);
  
 	 
     // Step 8. Null move search with verification search (is omitted in PV nodes)
@@ -629,7 +624,6 @@ namespace {
         && !ss->skipNullMove
         &&  depth >= 2 * ONE_PLY
         &&  eval >= beta
-		&&  zugzwang_R>=3*ONE_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
         &&  pos.non_pawn_material(pos.side_to_move()))
     {
@@ -638,11 +632,9 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R =  3 * ONE_PLY
+        Depth R = std::min(10*ONE_PLY, 3 * ONE_PLY
                  + depth / 4
-                 + int(eval - beta) / PawnValueMg * ONE_PLY;
-		if (zugzwang_R*ONE_PLY<R)
-			R= zugzwang_R*ONE_PLY;
+                 + int(eval - beta) / PawnValueMg * ONE_PLY);
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
         nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -alpha, DEPTH_ZERO)
@@ -659,10 +651,9 @@ namespace {
             if (depth < 12 * ONE_PLY)
                 return nullValue;
 
-            // Do verification search at high depths
+            // Do verification search at high depths we always go to search because R is not more than 10*ONE_PLY
             ss->skipNullMove = true;
-            Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, alpha, beta, DEPTH_ZERO)
-                                        :  search<NonPV>(pos, ss, alpha, beta, depth-R, false);
+            Value v =  search<NonPV>(pos, ss, alpha, beta, depth-R, false);
             ss->skipNullMove = false;
 
             if (v >= beta)
