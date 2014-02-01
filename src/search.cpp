@@ -625,7 +625,8 @@ namespace {
         &&  eval >= beta
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
         &&  pos.non_pawn_material(pos.side_to_move())
-		&&  (depth<=14*ONE_PLY))
+		&&  (depth<=14*ONE_PLY||
+		MoveList<LEGAL>(pos).size() > 14))
     {
         ss->currentMove = MOVE_NULL;
 
