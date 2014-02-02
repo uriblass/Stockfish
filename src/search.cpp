@@ -617,8 +617,7 @@ namespace {
         &&  abs(eval) < VALUE_KNOWN_WIN
         &&  pos.non_pawn_material(pos.side_to_move()))
         return eval - futility_margin(depth);
- 
-	 
+
     // Step 8. Null move search with verification search (is omitted in PV nodes)
     if (   !PvNode
         && !ss->skipNullMove
@@ -632,9 +631,13 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = std::min(10*ONE_PLY, 3 * ONE_PLY
+        Depth R =  3 * ONE_PLY
                  + depth / 4
-                 + int(eval - beta) / PawnValueMg * ONE_PLY);
+                 + int(eval - beta) / PawnValueMg * ONE_PLY;
+		int countpieces=pos.count<QUEEN>(pos.side_to_move())+pos.count<ROOK>(pos.side_to_move())+
+ 		pos.count<BISHOP>(pos.side_to_move())+pos.count<KNIGHT>(pos.side_to_move());
+		if (countpieces<4)
+			R=3*ONE_PLY+((R-3*ONE_PLY)*countpieces)/4;
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
         nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -alpha, DEPTH_ZERO)
@@ -651,9 +654,10 @@ namespace {
             if (depth < 12 * ONE_PLY)
                 return nullValue;
 
-            // Do verification search at high depths we always go to search because R is not more than 10*ONE_PLY
+            // Do verification search at high depths
             ss->skipNullMove = true;
-            Value v =  search<NonPV>(pos, ss, alpha, beta, depth-R, false);
+            Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, alpha, beta, DEPTH_ZERO)
+                                        :  search<NonPV>(pos, ss, alpha, beta, depth-R, false);
             ss->skipNullMove = false;
 
             if (v >= beta)
