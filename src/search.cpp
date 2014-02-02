@@ -636,7 +636,7 @@ namespace {
                  + int(eval - beta) / PawnValueMg * ONE_PLY;
 		int countpieces=pos.count<QUEEN>(pos.side_to_move())+pos.count<ROOK>(pos.side_to_move())+
  		pos.count<BISHOP>(pos.side_to_move())+pos.count<KNIGHT>(pos.side_to_move());
-		if (countpieces<4)
+		if (countpieces>4)
 			R=3*ONE_PLY+((R-3*ONE_PLY)*countpieces)/4;
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
