@@ -278,7 +278,7 @@ finalize:
             << " ponder "  << move_to_uci(RootMoves[0].pv[1], RootPos.is_chess960())
             << sync_endl;
 }
-
+int big_depth;
 
 namespace {
 
@@ -321,7 +321,7 @@ namespace {
     {
         // Age out PV variability metric
         BestMoveChanges *= 0.8;
-
+		big_depth=(int)(log((double)pos.nodes_searched()+1)/log(2.0));
         // Save the last iteration's scores before first PV line is searched and
         // all the move scores except the (new) PV are set to -VALUE_INFINITE.
         for (size_t i = 0; i < RootMoves.size(); ++i)
@@ -623,7 +623,7 @@ namespace {
         &&  eval >= beta
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
         &&  pos.non_pawn_material(pos.side_to_move())
-		&&  pos.nodes_searched()>((__int64)1<<(depth/ONE_PLY)))
+		&&  depth<big_depth)
     {
         ss->currentMove = MOVE_NULL;
 
