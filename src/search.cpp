@@ -321,7 +321,7 @@ namespace {
     {
         // Age out PV variability metric
         BestMoveChanges *= 0.8;
-		big_depth=(int)(log((double)pos.nodes_searched()+1)/log(2.0));
+		big_depth=(int)(log((double)pos.nodes_searched()+1)/log(2.0))*ONE_PLY;
         // Save the last iteration's scores before first PV line is searched and
         // all the move scores except the (new) PV are set to -VALUE_INFINITE.
         for (size_t i = 0; i < RootMoves.size(); ++i)
