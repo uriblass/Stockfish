@@ -620,13 +620,11 @@ namespace {
     if (   !PvNode
         && !ss->skipNullMove
         &&  depth >= 2 * ONE_PLY
-        &&  eval >= beta
+        &&  eval >= beta-(PawnValueMg/2)
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
         &&  pos.non_pawn_material(pos.side_to_move()))
     {
         ss->currentMove = MOVE_NULL;
-
-        assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
         Depth R =  3 * ONE_PLY
