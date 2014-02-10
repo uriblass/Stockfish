@@ -636,7 +636,7 @@ namespace {
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
 		nullValue =-qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1, DEPTH_ZERO);
-		if (depth-R>=ONE_PLY)
+		if ((depth-R>=ONE_PLY)&&(nullValue>=beta))
 			nullValue=- search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
         (ss+1)->skipNullMove = false;
         pos.undo_null_move();
