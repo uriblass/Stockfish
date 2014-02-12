@@ -80,6 +80,8 @@ namespace {
   size_t PVSize, PVIdx;
   TimeManager TimeMgr;
   double BestMoveChanges;
+  double branching_factor;
+  uint64_t nodes_first_iteration;
   Value DrawValue[COLOR_NB];
   HistoryStats History;
   GainsStats Gains;
@@ -398,6 +400,9 @@ namespace {
         }
 
         IterationTime = Time::now() - SearchTime;
+		if (depth==1)
+			nodes_first_iteration=pos.nodes_searched();
+		branching_factor=pow((double)pos.nodes_searched()/nodes_first_iteration,1.0/depth);
 
         // If skill levels are enabled and time is up, pick a sub-optimal best move
         if (skill.enabled() && skill.time_to_pick(depth))
@@ -878,7 +883,8 @@ moves_loop: // When in check and at SpNode search starts from here
 
           if (move == countermoves[0] || move == countermoves[1])
               ss->reduction = std::max(DEPTH_ZERO, ss->reduction - ONE_PLY);
-
+		  if (branching_factor<1.5)
+			  ss->reduction=std::max(DEPTH_ZERO,ss->reduction - ONE_PLY);
           Depth d = std::max(newDepth - ss->reduction, ONE_PLY);
           if (SpNode)
               alpha = splitPoint->alpha;
