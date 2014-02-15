@@ -510,9 +510,14 @@ namespace {
 
     if (!RootNode)
     {
+		if (pos.is_draw())
+		return DrawValue[pos.side_to_move()];
+	else
+		if (ss->ply > MAX_PLY)
+			return !inCheck? evaluate(pos):DrawValue[pos.side_to_move()];
         // Step 2. Check for aborted search and immediate draw
-        if (Signals.stop || pos.is_draw() || ss->ply > MAX_PLY)
-            return ss->ply > MAX_PLY && !inCheck ? evaluate(pos) : DrawValue[pos.side_to_move()];
+        if (Signals.stop)
+            return DrawValue[pos.side_to_move()];
 
         // Step 3. Mate distance pruning. Even if we mate at the next move our score
         // would be at best mate_in(ss->ply+1), but if alpha is already bigger because
@@ -1075,11 +1080,14 @@ moves_loop: // When in check and at SpNode search starts from here
 
     ss->currentMove = bestMove = MOVE_NONE;
     ss->ply = (ss-1)->ply + 1;
-
-    // Check for an instant draw or if the maximum ply has been reached
-    if (pos.is_draw() || ss->ply > MAX_PLY)
-        return ss->ply > MAX_PLY && !InCheck ? evaluate(pos) : DrawValue[pos.side_to_move()];
-
+	// Check for an instant draw or if the maximum ply has been reached
+	if (pos.is_draw())
+		return DrawValue[pos.side_to_move()];
+	else
+		if (ss->ply > MAX_PLY)
+			return !InCheck? evaluate(pos):DrawValue[pos.side_to_move()];
+    
+    
     // Decide whether or not to include checks: this fixes also the type of
     // TT entry depth that we are going to use. Note that in qsearch we use
     // only two types of depth in TT: DEPTH_QS_CHECKS or DEPTH_QS_NO_CHECKS.
