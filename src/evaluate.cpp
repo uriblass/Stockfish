@@ -290,7 +290,7 @@ namespace {
 template<bool Trace>
 Value do_evaluate(const Position& pos) {
 
-  assert(!pos.checkers());
+//  assert(!pos.checkers());
 
   EvalInfo ei;
   Score score, mobility[2] = { SCORE_ZERO, SCORE_ZERO };

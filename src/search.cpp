@@ -514,7 +514,7 @@ namespace {
 		return DrawValue[pos.side_to_move()];
 	else
 		if (ss->ply > MAX_PLY)
-			return !inCheck? evaluate(pos):DrawValue[pos.side_to_move()];
+			return evaluate(pos);
         // Step 2. Check for aborted search and immediate draw
         if (Signals.stop)
             return DrawValue[pos.side_to_move()];
@@ -1085,7 +1085,7 @@ moves_loop: // When in check and at SpNode search starts from here
 		return DrawValue[pos.side_to_move()];
 	else
 		if (ss->ply > MAX_PLY)
-			return !InCheck? evaluate(pos):DrawValue[pos.side_to_move()];
+			return evaluate(pos);
     
     
     // Decide whether or not to include checks: this fixes also the type of
