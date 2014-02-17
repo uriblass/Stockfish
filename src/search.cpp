@@ -779,7 +779,8 @@ moves_loop: // When in check and at SpNode search starts from here
                  || pos.advanced_pawn_push(move);
 
       // Step 12. Extend checks
-      if (givesCheck && pos.see_sign(move) >= VALUE_ZERO)
+      if ((givesCheck && pos.see_sign(move) >= VALUE_ZERO)|| 
+		  (type_of(move) == PROMOTION&&promotion_type(move)==QUEEN))
           ext = ONE_PLY;
 
       // Singular extension search. If all moves but one fail low on a search of
