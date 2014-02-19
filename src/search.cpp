@@ -432,7 +432,7 @@ namespace {
             // Stop the search if only one legal move is available or all
             // of the available time has been used.
             if (   RootMoves.size() == 1
-                || IterationTime > TimeMgr.available_time() )
+                || IterationTime > TimeMgr.available_time() || (IterationTime>TimeMgr.available_time()*0.7&&!Signals.failedLowAtRoot) )
                 stop = true;
 
             if (stop)
@@ -1627,8 +1627,7 @@ void check_time() {
   Time::point elapsed = Time::now() - SearchTime;
   bool stillAtFirstMove =    Signals.firstRootMove
                          && !Signals.failedLowAtRoot
-                         &&  elapsed > TimeMgr.available_time()
-                         &&  elapsed > IterationTime * 1.4;
+                         &&  elapsed > TimeMgr.available_time()*0.75;
 
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
                    || stillAtFirstMove;
