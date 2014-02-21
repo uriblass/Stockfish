@@ -66,7 +66,7 @@ namespace {
   int FutilityMoveCounts[2][32]; // [improving][depth]
 
   inline Value futility_margin(Depth d) {
-    return Value(100 * int(d));
+    return Value(100 * int(d))+(d>=ONE_PLY*7)*100*(d-7*ONE_PLY);
   }
 
   // Reduction lookup tables (initialized at startup) and their access function
