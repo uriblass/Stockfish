@@ -594,7 +594,7 @@ namespace {
         && !ss->skipNullMove
         &&  depth >= 2 * ONE_PLY
         &&  eval >= beta
-        &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
+        &&  abs(beta) < 3*PawnValueMg
         &&  pos.non_pawn_material(pos.side_to_move()))
     {
         ss->currentMove = MOVE_NULL;
