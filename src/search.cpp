@@ -65,7 +65,7 @@ namespace {
   int FutilityMoveCounts[2][32]; // [improving][depth]
 
   inline Value futility_margin(Depth d) {
-    return Value(100 * d);
+    return Value(10+80 *d+(int)d *d);
   }
 
   // Reduction lookup tables (initialized at startup) and their access function
@@ -581,7 +581,6 @@ namespace {
     // Step 7. Futility pruning: child node (skipped when in check)
     if (   !PvNode
         && !ss->skipNullMove
-        &&  depth < 7 * ONE_PLY
         &&  eval - futility_margin(depth) >= beta
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
         &&  abs(eval) < VALUE_KNOWN_WIN
@@ -803,8 +802,6 @@ moves_loop: // When in check and at SpNode search starts from here
           predictedDepth = newDepth - reduction<PvNode>(improving, depth, moveCount);
 
           // Futility pruning: parent node
-          if (predictedDepth < 7 * ONE_PLY)
-          {
               futilityValue = ss->staticEval + futility_margin(predictedDepth)
                             + 128 + Gains[pos.moved_piece(move)][to_sq(move)];
 
@@ -820,7 +817,6 @@ moves_loop: // When in check and at SpNode search starts from here
                   }
                   continue;
               }
-          }
 
           // Prune moves with negative SEE at low depths
           if (predictedDepth < 4 * ONE_PLY && pos.see_sign(move) < VALUE_ZERO)
