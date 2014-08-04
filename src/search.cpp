@@ -76,6 +76,7 @@ namespace {
   size_t PVIdx;
   TimeManager TimeMgr;
   double BestMoveChanges;
+  int minimal_depth;
   Value DrawValue[COLOR_NB];
   HistoryStats History;
   GainsStats Gains;
@@ -294,7 +295,7 @@ namespace {
     {
         // Age out PV variability metric
         BestMoveChanges *= 0.5;
-
+		minimal_depth=depth/5;
         // Save the last iteration's scores before first PV line is searched and
         // all the move scores except the (new) PV are set to -VALUE_INFINITE.
         for (size_t i = 0; i < RootMoves.size(); ++i)
@@ -601,7 +602,8 @@ namespace {
                  + depth / 4
                  + (abs(beta) < VALUE_KNOWN_WIN ? int(eval - beta) / PawnValueMg * ONE_PLY
                                                 : DEPTH_ZERO);
-
+		if ((depth-R)<(minimal_depth-ss->ply)*ONE_PLY)
+ 			R=depth-(minimal_depth-ss->ply)*ONE_PLY;
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
         nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1, DEPTH_ZERO)
