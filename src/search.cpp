@@ -439,11 +439,11 @@ namespace {
     SplitPoint* splitPoint;
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
-    Depth ext, newDepth, predictedDepth;
+    Depth ext, newDepth, predictedDepth,reduction_so_far;
     Value bestValue, value, ttValue, eval, nullValue, futilityValue;
     bool inCheck, givesCheck, pvMove, singularExtensionNode, improving;
     bool captureOrPromotion, dangerous, doFullDepthSearch;
-    int moveCount, quietCount,reduction_so_far;
+    int moveCount, quietCount;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -468,10 +468,7 @@ namespace {
     ss->ply = (ss-1)->ply + 1;
     (ss+1)->skipNullMove = false; (ss+1)->reduction = DEPTH_ZERO;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
-	reduction_so_far=iteration;
-//this is the source of error	Depth reduction_so_far=iteration*ONE_PLY;
-//	Depth reduction_so_far=(iteration+1-ss->ply)*ONE_PLY;
-//	reduction_so_far=reduction_so_far-depth;
+	reduction_so_far=(iteration+1-ss->ply)*ONE_PLY-depth;
     // Used to send selDepth info to GUI
     if (PvNode && thisThread->maxPly < ss->ply)
         thisThread->maxPly = ss->ply;
@@ -604,9 +601,9 @@ namespace {
                  + depth / 4
                  + (abs(beta) < VALUE_KNOWN_WIN ? int(eval - beta) / PawnValueMg * ONE_PLY
                                                 : DEPTH_ZERO);
-	//	R=R-(reduction_so_far/4);
-	//	if (R<3*ONE_PLY)
-	//		R=3*ONE_PLY;
+		R=R-(reduction_so_far/4);
+		if (R<3*ONE_PLY)
+			R=3*ONE_PLY;
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
         nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1, DEPTH_ZERO)
