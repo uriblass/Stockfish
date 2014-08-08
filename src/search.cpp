@@ -601,9 +601,7 @@ namespace {
                  + depth / 4
                  + (abs(beta) < VALUE_KNOWN_WIN ? int(eval - beta) / PawnValueMg * ONE_PLY
                                                 : DEPTH_ZERO);
-		R=R-(reduction_so_far/4);
-		if (R<3*ONE_PLY)
-			R=3*ONE_PLY;
+		R=std::max(R-(reduction_so_far/4),3*ONE_PLY);
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
         nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1, DEPTH_ZERO)
