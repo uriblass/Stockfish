@@ -76,6 +76,7 @@ namespace {
   size_t PVIdx;
   TimeManager TimeMgr;
   double BestMoveChanges;
+  int minimal_depth;
   Value DrawValue[COLOR_NB];
   HistoryStats History;
   GainsStats Gains;
@@ -294,7 +295,7 @@ namespace {
     {
         // Age out PV variability metric
         BestMoveChanges *= 0.5;
-
+		minimal_depth=depth/4;
         // Save the last iteration's scores before first PV line is searched and
         // all the move scores except the (new) PV are set to -VALUE_INFINITE.
         for (size_t i = 0; i < RootMoves.size(); ++i)
@@ -468,7 +469,6 @@ namespace {
     ss->ply = (ss-1)->ply + 1;
     (ss+1)->skipNullMove = false; (ss+1)->reduction = DEPTH_ZERO;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
-
     // Used to send selDepth info to GUI
     if (PvNode && thisThread->maxPly < ss->ply)
         thisThread->maxPly = ss->ply;
@@ -557,7 +557,9 @@ namespace {
         Square to = to_sq(move);
         Gains.update(pos.piece_on(to), to, -(ss-1)->staticEval - ss->staticEval);
     }
-
+	//do not do razoring or futility pruning in the first ply of the search
+	if (ss->ply>minimal_depth)//do not prune at the first plies
+	{
     // Step 6. Razoring (skipped when in check)
     if (   !PvNode
         &&  depth < 4 * ONE_PLY
@@ -584,7 +586,7 @@ namespace {
         &&  abs(eval) < VALUE_KNOWN_WIN
         &&  pos.non_pawn_material(pos.side_to_move()))
         return eval - futility_margin(depth);
-
+	}
     // Step 8. Null move search with verification search (is omitted in PV nodes)
     if (   !PvNode
         && !ss->skipNullMove
@@ -601,7 +603,8 @@ namespace {
                  + depth / 4
                  + (abs(beta) < VALUE_KNOWN_WIN ? int(eval - beta) / PawnValueMg * ONE_PLY
                                                 : DEPTH_ZERO);
-
+		if ((depth-R)<(minimal_depth-ss->ply)*ONE_PLY)
+			R=depth-(minimal_depth-ss->ply)*ONE_PLY;
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
         nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1, DEPTH_ZERO)
@@ -778,7 +781,7 @@ moves_loop: // When in check and at SpNode search starts from here
 
       // Update the current move (this must be done after singular extension search)
       newDepth = depth - ONE_PLY + ext;
-
+	  if (ss->ply>minimal_depth)//do not prune at the first plies
       // Step 13. Pruning at shallow depth (exclude PV nodes)
       if (   !PvNode
           && !captureOrPromotion
