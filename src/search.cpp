@@ -76,7 +76,7 @@ namespace {
   size_t PVIdx;
   TimeManager TimeMgr;
   double BestMoveChanges;
-  int iteration;
+  int iteration=0;
   Value DrawValue[COLOR_NB];
   HistoryStats History;
   GainsStats Gains;
