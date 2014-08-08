@@ -877,6 +877,11 @@ moves_loop: // When in check and at SpNode search starts from here
           Depth d = std::max(newDepth - ss->reduction, ONE_PLY);
           if (SpNode)
               alpha = splitPoint->alpha;
+		  if (d<(1+minimal_depth-ss->ply)*ONE_PLY)
+		  {
+			 ss->reduction=std::max(DEPTH_ZERO,ss->reduction+d-(1+minimal_depth-ss->ply)*ONE_PLY);
+			 d=std::max(newDepth - ss->reduction, ONE_PLY);
+		  }
 
           value = -search<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
