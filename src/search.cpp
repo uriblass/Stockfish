@@ -468,7 +468,8 @@ namespace {
     ss->ply = (ss-1)->ply + 1;
     (ss+1)->skipNullMove = false; (ss+1)->reduction = DEPTH_ZERO;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
-//	Depth reduction_so_far=iteration*ONE_PLY-ss->ply*ONE_PLY-depth+ONE_PLY;
+	Depth reduction_so_far=(iteration+1-ss->ply)*ONE_PLY;
+//	reduction_so_far=reduction_so_far-depth;
     // Used to send selDepth info to GUI
     if (PvNode && thisThread->maxPly < ss->ply)
         thisThread->maxPly = ss->ply;
