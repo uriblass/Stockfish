@@ -601,7 +601,7 @@ namespace {
                  + depth / 4
                  + (abs(beta) < VALUE_KNOWN_WIN ? int(eval - beta) / PawnValueMg * ONE_PLY
                                                 : DEPTH_ZERO);
-		R=R-(reduction_so_far/4);
+	//	R=R-(reduction_so_far/4);
 		if (R<3*ONE_PLY)
 			R=3*ONE_PLY;
         pos.do_null_move(st);
