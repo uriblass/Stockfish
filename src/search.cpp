@@ -468,7 +468,7 @@ namespace {
     ss->ply = (ss-1)->ply + 1;
     (ss+1)->skipNullMove = false; (ss+1)->reduction = DEPTH_ZERO;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
-	int reduction_so_far=iteration-ss->ply-(depth/ONE_PLY)+1;
+	Depth reduction_so_far=iteration*ONE_PLY-ss->ply*ONE_PLY-depth+ONE_PLY;
     // Used to send selDepth info to GUI
     if (PvNode && thisThread->maxPly < ss->ply)
         thisThread->maxPly = ss->ply;
@@ -601,7 +601,7 @@ namespace {
                  + depth / 4
                  + (abs(beta) < VALUE_KNOWN_WIN ? int(eval - beta) / PawnValueMg * ONE_PLY
                                                 : DEPTH_ZERO);
-		R=std::max(R-(reduction_so_far/4)*ONE_PLY,3*ONE_PLY);
+		R=std::max(R-(reduction_so_far/4),3*ONE_PLY);
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
         nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1, DEPTH_ZERO)
