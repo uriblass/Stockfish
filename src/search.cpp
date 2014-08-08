@@ -468,6 +468,7 @@ namespace {
     ss->ply = (ss-1)->ply + 1;
     (ss+1)->skipNullMove = false; (ss+1)->reduction = DEPTH_ZERO;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
+	int reduction_so_far=iteration;
 //this is the source of error	Depth reduction_so_far=iteration*ONE_PLY;
 //	Depth reduction_so_far=(iteration+1-ss->ply)*ONE_PLY;
 //	reduction_so_far=reduction_so_far-depth;
