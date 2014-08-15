@@ -82,7 +82,7 @@ namespace {
   MovesStats Countermoves, Followupmoves;
 
   template <NodeType NT, bool SpNode>
-  Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode);
+  Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode,bool skipnull);
 
   template <NodeType NT, bool InCheck>
   Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth);
@@ -320,7 +320,7 @@ namespace {
             // high/low anymore.
             while (true)
             {
-                bestValue = search<Root, false>(pos, ss, alpha, beta, depth * ONE_PLY, false);
+                bestValue = search<Root, false>(pos, ss, alpha, beta, depth * ONE_PLY, false,false);
 
                 // Bring the best move to the front. It is critical that sorting
                 // is done with a stable algorithm because all the values but the
@@ -427,7 +427,7 @@ namespace {
   // table here: This is taken care of after we return from the split point.
 
   template <NodeType NT, bool SpNode>
-  Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode) {
+  Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode,bool skipnull) {
 
     const bool RootNode = NT == Root;
     const bool PvNode   = NT == PV || NT == Root;
@@ -470,7 +470,7 @@ namespace {
     bestValue = -VALUE_INFINITE;
     ss->currentMove = ss->ttMove = (ss+1)->excludedMove = bestMove = MOVE_NONE;
     ss->ply = (ss-1)->ply + 1;
-    (ss+1)->skipNullMove = false; (ss+1)->reduction = DEPTH_ZERO;
+    (ss+1)->reduction = DEPTH_ZERO;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
 
     // Used to send selDepth info to GUI
@@ -581,7 +581,7 @@ namespace {
 
     // Step 7. Futility pruning: child node (skipped when in check)
     if (   !PvNode
-        && !ss->skipNullMove
+        && (skipnull==false)
         &&  depth < 7 * ONE_PLY
         &&  eval - futility_margin(depth) >= beta
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
@@ -591,7 +591,7 @@ namespace {
 
     // Step 8. Null move search with verification search (is omitted in PV nodes)
     if (   !PvNode
-        && !ss->skipNullMove
+        && (skipnull==false)
         &&  depth >= 2 * ONE_PLY
         &&  eval >= beta
         &&  pos.non_pawn_material(pos.side_to_move()))
@@ -607,10 +607,8 @@ namespace {
                                                 : DEPTH_ZERO);
 
         pos.do_null_move(st);
-        (ss+1)->skipNullMove = true;
         nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1, DEPTH_ZERO)
-                                      : - search<NonPV, false>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
-        (ss+1)->skipNullMove = false;
+                                      : - search<NonPV, false>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode,true);
         pos.undo_null_move();
 
         if (nullValue >= beta)
@@ -623,11 +621,8 @@ namespace {
                 return nullValue;
 
             // Do verification search at high depths
-            ss->skipNullMove = true;
             Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta, DEPTH_ZERO)
-                                        :  search<NonPV, false>(pos, ss, beta-1, beta, depth-R, false);
-            ss->skipNullMove = false;
-
+                                        :  search<NonPV, false>(pos, ss, beta-1, beta, depth-R, false,true);
             if (v >= beta)
                 return nullValue;
         }
@@ -639,7 +634,7 @@ namespace {
     // prune the previous move.
     if (   !PvNode
         &&  depth >= 5 * ONE_PLY
-        && !ss->skipNullMove
+        && (skipnull==false)
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
         Value rbeta = std::min(beta + 200, VALUE_INFINITE);
@@ -657,7 +652,7 @@ namespace {
             {
                 ss->currentMove = move;
                 pos.do_move(move, st, ci, pos.gives_check(move, ci));
-                value = -search<NonPV, false>(pos, ss+1, -rbeta, -rbeta+1, rdepth, !cutNode);
+                value = -search<NonPV, false>(pos, ss+1, -rbeta, -rbeta+1, rdepth, !cutNode,false);
                 pos.undo_move(move);
                 if (value >= rbeta)
                     return value;
@@ -670,11 +665,7 @@ namespace {
         && (PvNode || ss->staticEval + 256 >= beta))
     {
         Depth d = depth - 2 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
-
-        ss->skipNullMove = true;
-        search<PvNode ? PV : NonPV, false>(pos, ss, alpha, beta, d, true);
-        ss->skipNullMove = false;
-
+        search<PvNode ? PV : NonPV, false>(pos, ss, alpha, beta, d, true,true);
         tte = TT.probe(posKey);
         ttMove = tte ? tte->move() : MOVE_NONE;
     }
@@ -771,9 +762,7 @@ moves_loop: // When in check and at SpNode search starts from here
       {
           Value rBeta = ttValue - int(depth);
           ss->excludedMove = move;
-          ss->skipNullMove = true;
-          value = search<NonPV, false>(pos, ss, rBeta - 1, rBeta, depth / 2, cutNode);
-          ss->skipNullMove = false;
+          value = search<NonPV, false>(pos, ss, rBeta - 1, rBeta, depth / 2, cutNode,true);
           ss->excludedMove = MOVE_NONE;
 
           if (value < rBeta)
@@ -879,13 +868,13 @@ moves_loop: // When in check and at SpNode search starts from here
           if (SpNode)
               alpha = splitPoint->alpha;
 
-          value = -search<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          value = -search<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, d, true,false);
 
           // Re-search at intermediate depth if reduction is very high
           if (value > alpha && ss->reduction >= 4 * ONE_PLY)
           {
               Depth d2 = std::max(newDepth - 2 * ONE_PLY, ONE_PLY);
-              value = -search<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, d2, true);
+              value = -search<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, d2, true,false);
           }
 
           doFullDepthSearch = (value > alpha && ss->reduction != DEPTH_ZERO);
@@ -903,7 +892,7 @@ moves_loop: // When in check and at SpNode search starts from here
           value = newDepth < ONE_PLY ?
                           givesCheck ? -qsearch<NonPV,  true>(pos, ss+1, -(alpha+1), -alpha, DEPTH_ZERO)
                                      : -qsearch<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, DEPTH_ZERO)
-                                     : - search<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+                                     : - search<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode,false);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
@@ -913,7 +902,7 @@ moves_loop: // When in check and at SpNode search starts from here
           value = newDepth < ONE_PLY ?
                           givesCheck ? -qsearch<PV,  true>(pos, ss+1, -beta, -alpha, DEPTH_ZERO)
                                      : -qsearch<PV, false>(pos, ss+1, -beta, -alpha, DEPTH_ZERO)
-                                     : - search<PV, false>(pos, ss+1, -beta, -alpha, newDepth, false);
+                                     : - search<PV, false>(pos, ss+1, -beta, -alpha, newDepth, false,false);
       // Step 17. Undo move
       pos.undo_move(move);
 
@@ -1516,13 +1505,13 @@ void Thread::idle_loop() {
           activePosition = &pos;
 
           if (sp->nodeType == NonPV)
-              search<NonPV, true>(pos, ss, sp->alpha, sp->beta, sp->depth, sp->cutNode);
+              search<NonPV, true>(pos, ss, sp->alpha, sp->beta, sp->depth, sp->cutNode,false);
 
           else if (sp->nodeType == PV)
-              search<PV, true>(pos, ss, sp->alpha, sp->beta, sp->depth, sp->cutNode);
+              search<PV, true>(pos, ss, sp->alpha, sp->beta, sp->depth, sp->cutNode,false);
 
           else if (sp->nodeType == Root)
-              search<Root, true>(pos, ss, sp->alpha, sp->beta, sp->depth, sp->cutNode);
+              search<Root, true>(pos, ss, sp->alpha, sp->beta, sp->depth, sp->cutNode,false);
 
           else
               assert(false);
