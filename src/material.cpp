@@ -211,6 +211,10 @@ Entry* probe(const Position& pos, Table& entries, Endgames& endgames) {
   // No pawns makes it difficult to win, even with a material advantage. This
   // catches some trivial draws like KK, KBK and KNK and gives a very drawish
   // scale factor for cases such as KRKBP and KmmKm (except for KBBKN).
+int numpieces=pos.count<KNIGHT>(WHITE) + pos.count<BISHOP>(WHITE)+ pos.count<KNIGHT>(BLACK) + pos.count<BISHOP>(BLACK)+
+	pos.count<ROOK>(WHITE)+pos.count<ROOK>(BLACK)+pos.count<QUEEN>(WHITE)+pos.count<QUEEN>(BLACK);
+if (numpieces<5)
+{
   if (!pos.count<PAWN>(WHITE) && npm_w - npm_b <= BishopValueMg)
       e->factor[WHITE] = uint8_t(npm_w < RookValueMg ? SCALE_FACTOR_DRAW : npm_b <= BishopValueMg ? 4 : 12);
 
@@ -222,7 +226,7 @@ Entry* probe(const Position& pos, Table& entries, Endgames& endgames) {
 
   if (pos.count<PAWN>(BLACK) == 1 && npm_b - npm_w <= BishopValueMg)
       e->factor[BLACK] = (uint8_t) SCALE_FACTOR_ONEPAWN;
-
+}
   // Compute the space weight
   if (npm_w + npm_b >= 2 * QueenValueMg + 4 * RookValueMg + 2 * KnightValueMg)
   {
