@@ -558,6 +558,7 @@ namespace {
         && !ss->skipNullMove
         &&  depth >= 2 * ONE_PLY
         &&  eval >= beta
+		&&  abs(beta)<VALUE_KNOWN_WIN
         &&  pos.non_pawn_material(pos.side_to_move()))
     {
         ss->currentMove = MOVE_NULL;
@@ -567,8 +568,7 @@ namespace {
         // Null move dynamic reduction based on depth and value
         Depth R =  3 * ONE_PLY
                  + depth / 4
-                 + (abs(beta) < VALUE_KNOWN_WIN ? int(eval - beta) / PawnValueMg * ONE_PLY
-                                                : DEPTH_ZERO);
+                 + (int(eval - beta) / PawnValueMg * ONE_PLY);
 
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
@@ -582,18 +582,7 @@ namespace {
             // Do not return unproven mate scores
             if (nullValue >= VALUE_MATE_IN_MAX_PLY)
                 nullValue = beta;
-
-            if (depth < 12 * ONE_PLY && abs(beta) < VALUE_KNOWN_WIN)
-                return nullValue;
-
-            // Do verification search at high depths
-            ss->skipNullMove = true;
-            Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta, DEPTH_ZERO)
-                                        :  search<NonPV, false>(pos, ss, beta-1, beta, depth-R, false);
-            ss->skipNullMove = false;
-
-            if (v >= beta)
-                return nullValue;
+			return nullValue; 
         }
     }
 
