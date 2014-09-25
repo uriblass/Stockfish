@@ -221,9 +221,9 @@ namespace {
     ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = ei.pi->pawn_attacks(Us);
 
     // Init king safety tables only if they have a significant effect on evaluation
-	//Do not evaluate king safety when you are close to the endgame so the weight of king safety is small
-	//KnightValueMg is the margin
-    if (pos.non_pawn_material(Us)+pos.non_pawn_material(Them) > EndgameLimit+KnightValueMg)
+	//Do not evaluate king safety when you are close to the endgame
+    if (ei.mi->game_phase()>10)
+		 
     {
         ei.kingRing[Them] = b | shift_bb<Down>(b);
         b &= ei.attackedBy[Us][PAWN];
