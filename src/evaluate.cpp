@@ -220,8 +220,9 @@ namespace {
     Bitboard b = ei.attackedBy[Them][KING] = pos.attacks_from<KING>(pos.king_square(Them));
     ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = ei.pi->pawn_attacks(Us);
 
-    // Init king safety tables only if we are going to use them
-    if (pos.non_pawn_material(Us) > QueenValueMg + PawnValueMg)
+    // Init king safety tables only if we are going to use them only if the weight of it is enough
+	//to have a significant effect on the evaluation otherwise the price in speed may be too high
+    if (ei.mi->game_phase()>20)
     {
         ei.kingRing[Them] = b | shift_bb<Down>(b);
         b &= ei.attackedBy[Us][PAWN];
