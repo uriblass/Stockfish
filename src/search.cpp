@@ -268,6 +268,12 @@ namespace {
     // Iterative deepening loop until requested to stop or target depth reached
     while (++depth <= MAX_PLY && !Signals.stop && (!Limits.depth || depth <= Limits.depth))
     {
+		if (depth<5)
+			multiPV=2;
+		else
+			multiPV=1;
+
+
         // Age out PV variability metric
         BestMoveChanges *= 0.5;
 
