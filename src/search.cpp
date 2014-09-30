@@ -243,7 +243,7 @@ namespace {
     Stack stack[MAX_PLY_PLUS_6], *ss = stack+2; // To allow referencing (ss-2)
     int depth;
     Value bestValue, alpha, beta, delta;
-	Value diff=Value(0);
+	double diff=0;//diff is the square of the difference between best move and next best move divided by a pawn.
     std::memset(ss-2, 0, 5 * sizeof(Stack));
 
     depth = 0;
@@ -275,10 +275,13 @@ namespace {
 			else
 				multiPV=1;
 			if (depth==5)
-				diff=RootMoves[0].score-RootMoves[1].score;
-			if (  ((depth>5)&&(BestMoveChanges>=1))
-				||(diff<PawnValueMg))
-				diff=Value(0);
+			{
+				diff=(double)(RootMoves[0].score-RootMoves[1].score);
+				diff=diff*diff/PawnValueMg;
+			}
+			if (  depth>5&&
+				BestMoveChanges>=1)
+				diff=0;
 		}
 		 
 
@@ -380,7 +383,7 @@ namespace {
             // Stop the search if only one legal move is available or all
             // of the available time has been used.
             if (   RootMoves.size() == 1
-                || Time::now() - SearchTime > TimeMgr.available_time()/(0.97+(double)diff/(double)PawnValueMg))
+                || Time::now() - SearchTime > TimeMgr.available_time()/(0.97+diff/PawnValueMg))
             {
                 // If we are allowed to ponder do not stop the search now but
                 // keep pondering until the GUI sends "ponderhit" or "stop".
