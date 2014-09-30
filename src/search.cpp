@@ -280,10 +280,12 @@ namespace {
 				diff=Value(0);
 			if (diff>5*PawnValueMg)
 				diff=5*PawnValueMg;
+			if (BestMoveChanges>=1)
+				diff=Value(0);
+			
 		}
         // Age out PV variability metric
         BestMoveChanges *= 0.5;
-
         // Save the last iteration's scores before first PV line is searched and
         // all the move scores except the (new) PV are set to -VALUE_INFINITE.
         for (size_t i = 0; i < RootMoves.size(); ++i)
