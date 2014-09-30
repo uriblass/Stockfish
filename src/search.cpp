@@ -114,7 +114,6 @@ namespace {
 
 
 /// Search::init() is called during startup to initialize various lookup tables
-
 void Search::init() {
 
   int d;  // depth (ONE_PLY == 2)
@@ -231,7 +230,7 @@ finalize:
             << sync_endl;
 }
 
-
+double diff;
 namespace {
 
   // id_loop() is the main iterative deepening loop. It calls search() repeatedly
@@ -243,7 +242,7 @@ namespace {
     Stack stack[MAX_PLY_PLUS_6], *ss = stack+2; // To allow referencing (ss-2)
     int depth;
     Value bestValue, alpha, beta, delta;
-	double diff=0;//diff is the square of the difference between best move and next best move divided by a pawn.
+	diff=0;//diff is the square of the difference between best move and next best move divided by a pawn.
     std::memset(ss-2, 0, 5 * sizeof(Stack));
 
     depth = 0;
@@ -276,8 +275,7 @@ namespace {
 				multiPV=1;
 			if (depth==5)
 			{
-				diff=(double)(RootMoves[0].score-RootMoves[1].score);
-				diff=diff*diff/PawnValueMg;
+				diff=(double)(RootMoves[0].score-RootMoves[1].score)/(2*PawnValueMg)-0.03;
 			}
 			if (  depth>5&&
 				BestMoveChanges>=1)
@@ -383,7 +381,7 @@ namespace {
             // Stop the search if only one legal move is available or all
             // of the available time has been used.
             if (   RootMoves.size() == 1
-                || Time::now() - SearchTime > TimeMgr.available_time()/(0.97+diff/PawnValueMg))
+                || Time::now() - SearchTime > TimeMgr.available_time(1+diff))
             {
                 // If we are allowed to ponder do not stop the search now but
                 // keep pondering until the GUI sends "ponderhit" or "stop".
@@ -916,7 +914,7 @@ moves_loop: // When in check and at SpNode search starts from here
               // We record how often the best move has been changed in each
               // iteration. This information is used for time management: When
               // the best move changes frequently, we allocate some more time.
-              if (!pvMove)
+              if (!pvMove && depth >= 5)
                   ++BestMoveChanges;
           }
           else
@@ -1587,7 +1585,7 @@ void check_time() {
   Time::point elapsed = Time::now() - SearchTime;
   bool stillAtFirstMove =    Signals.firstRootMove
                          && !Signals.failedLowAtRoot
-                         &&  elapsed > TimeMgr.available_time() * 75 / 100;
+                         &&  elapsed > TimeMgr.available_time(1+diff) * 75 / 100;
 
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
                    || stillAtFirstMove;
