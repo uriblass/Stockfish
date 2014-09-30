@@ -243,7 +243,7 @@ namespace {
     Stack stack[MAX_PLY_PLUS_6], *ss = stack+2; // To allow referencing (ss-2)
     int depth;
     Value bestValue, alpha, beta, delta;
-
+	Value diff=Value(0);
     std::memset(ss-2, 0, 5 * sizeof(Stack));
 
     depth = 0;
@@ -258,6 +258,7 @@ namespace {
     Followupmoves.clear();
 
     size_t multiPV = Options["MultiPV"];
+	size_t RealmultiPV =multiPV;
     Skill skill(Options["Skill Level"], RootMoves.size());
 
     // Do we have to play with skill handicap? In this case enable MultiPV search
@@ -267,6 +268,19 @@ namespace {
     // Iterative deepening loop until requested to stop or target depth reached
     while (++depth <= MAX_PLY && !Signals.stop && (!Limits.depth || depth <= Limits.depth))
     {
+		if (Limits.use_time_management()&&(RealmultiPV==1))
+		{
+			if (depth<5)
+				multiPV=2;
+			else
+				multiPV=1;
+			if (depth==5)
+				diff=RootMoves[0].score-RootMoves[1].score;
+			if (diff<PawnValueMg)
+				diff=Value(0);
+			if (diff>5*PawnValueMg)
+				diff=5*PawnValueMg;
+		}
         // Age out PV variability metric
         BestMoveChanges *= 0.5;
 
@@ -365,7 +379,7 @@ namespace {
             // Stop the search if only one legal move is available or all
             // of the available time has been used.
             if (   RootMoves.size() == 1
-                || Time::now() - SearchTime > TimeMgr.available_time())
+                || Time::now() - SearchTime > TimeMgr.available_time()/(1+(double)diff/(double)PawnValueMg))
             {
                 // If we are allowed to ponder do not stop the search now but
                 // keep pondering until the GUI sends "ponderhit" or "stop".
