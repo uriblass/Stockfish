@@ -276,6 +276,8 @@ namespace {
 				multiPV=1;
 			if (depth==5)
 				diff=RootMoves[0].score-RootMoves[1].score;
+			if ((depth>5)&&(BestMoveChanges>=1))
+				diff=Value(0);
 		}
 		 
 
