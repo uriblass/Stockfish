@@ -258,7 +258,7 @@ namespace {
     Followupmoves.clear();
 
     size_t multiPV = Options["MultiPV"];
-	size_t RealmultiPV =multiPV;
+	size_t RealmultiPV =multiPV;//the real multiPV that we do not change for easy moves
     Skill skill(Options["Skill Level"], RootMoves.size());
 
     // Do we have to play with skill handicap? In this case enable MultiPV search
@@ -272,17 +272,21 @@ namespace {
 		{
 			if (depth<5)
 				multiPV=2;
-			else
-				multiPV=1;
-			if (depth==5)
-				diff=RootMoves[0].score-RootMoves[1].score;
-			if (diff<PawnValueMg)
-				diff=Value(0);
-			if (diff>5*PawnValueMg)
-				diff=5*PawnValueMg;
-			if (BestMoveChanges>=1)
-				diff=Value(0);
-			
+			else //calculate diff and use it to decide if the move is probably easy 
+				//so continue to calculate second best move
+			{
+				if (multiPV==2)
+				{
+					diff=RootMoves[0].score-RootMoves[1].score;
+				    if (diff<PawnValueMg)
+					{
+						diff=Value(0);
+						multiPV=1;
+					}
+				}
+
+			}
+			 
 		}
         // Age out PV variability metric
         BestMoveChanges *= 0.5;
