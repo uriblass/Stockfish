@@ -270,7 +270,8 @@ namespace {
     {
 		if (Limits.use_time_management()&&(RealmultiPV==1))
 		{
-			if (depth<5)
+			if (depth<5||
+				Time::now() - SearchTime < TimeMgr.available_time()/100)
 				multiPV=2;
 			else //calculate diff and use it to decide if the move is probably easy 
 				//so continue to calculate second best move
@@ -385,7 +386,7 @@ namespace {
             // Stop the search if only one legal move is available or all
             // of the available time has been used.
             if (   RootMoves.size() == 1
-                || Time::now() - SearchTime > TimeMgr.available_time()/(1+2*(double)diff/(double)PawnValueMg))
+                || Time::now() - SearchTime > TimeMgr.available_time()/(1+(double)diff/(double)PawnValueMg))
             {
                 // If we are allowed to ponder do not stop the search now but
                 // keep pondering until the GUI sends "ponderhit" or "stop".
