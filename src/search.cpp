@@ -279,11 +279,14 @@ namespace {
 				if (multiPV==2)
 				{
 					diff=RootMoves[0].score-RootMoves[1].score;
-				    if (diff<PawnValueMg)
+				    if (diff<PawnValueMg/2)
 					{
 						diff=Value(0);
 						multiPV=1;
 					}
+					if (diff>5*PawnValueMg)
+						diff=5*PawnValueMg;
+					diff=diff*2;
 				}
 
 			}
