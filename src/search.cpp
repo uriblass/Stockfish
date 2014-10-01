@@ -385,7 +385,7 @@ namespace {
             // Stop the search if only one legal move is available or all
             // of the available time has been used.
             if (   RootMoves.size() == 1
-                || Time::now() - SearchTime > TimeMgr.available_time()/(1+(double)diff/(double)PawnValueMg))
+                || Time::now() - SearchTime > TimeMgr.available_time()/(1+2*(double)diff/(double)PawnValueMg))
             {
                 // If we are allowed to ponder do not stop the search now but
                 // keep pondering until the GUI sends "ponderhit" or "stop".
