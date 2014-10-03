@@ -288,9 +288,9 @@ namespace {
 							multiPV=1;
 						diff=Value(0);
 					}
-					else
-					if (diff<PawnValueMg*2)
-					    diff=PawnValueMg*2;//easy move is not more than 1/3 of the remaining time but can be less than it
+				//	else
+				//	if (diff<PawnValueMg*2)
+				//	    diff=PawnValueMg*2;//easy move is not more than 1/3 of the remaining time but can be less than it
 				}
 
 			}
