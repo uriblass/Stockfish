@@ -293,8 +293,9 @@ namespace {
 							diff=diff/2;//the move is less easy move because the dif goes down
 					}
 					else
-					if (diff<PawnValueMg*2)
-					    diff=PawnValueMg*2;//easy move is not more than 1/3 of the remaining time but can be less than it
+					if (diff<PawnValueMg)
+					    diff=PawnValueMg;//easy move when the difference does not go down 
+					//is not more than 1/2 of the remaining time but can be less than it
 				}
 
 			}
