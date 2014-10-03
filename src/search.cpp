@@ -278,19 +278,23 @@ namespace {
 			{
 				if (multiPV==2)
 				{//if the difference is smaller than 0.5 pawn 
-					//or went down by more than 10% then it is not an easy move
+					//or became smaller then maybe it is not an easy move
 					diff=RootMoves[0].score-RootMoves[1].score;
 				    if (diff<PawnValueMg/2||
-						((RootMoves[0].prevScore-RootMoves[1].prevScore)*9)>=diff*10)
+						(RootMoves[0].prevScore-RootMoves[1].prevScore)>diff)
 					{
-						if (diff<PawnValueMg)//the move is still candidate to be easy move
-							//when the difference in score is bigger than a pawn
+						if (diff<PawnValueMg/2)//the move is still candidate to be easy move
+							//when the difference in score is bigger than half pawn
+						{
 							multiPV=1;
-						diff=Value(0);
+							diff=Value(0);
+						}
+						else
+							diff=diff/2;//the move is less easy move because the dif goes down
 					}
-				//	else
-				//	if (diff<PawnValueMg*2)
-				//	    diff=PawnValueMg*2;//easy move is not more than 1/3 of the remaining time but can be less than it
+					else
+					if (diff<PawnValueMg*2)
+					    diff=PawnValueMg*2;//easy move is not more than 1/3 of the remaining time but can be less than it
 				}
 
 			}
