@@ -265,42 +265,13 @@ namespace {
     // Do we have to play with skill handicap? In this case enable MultiPV search
     // that we will use behind the scenes to retrieve a set of possible moves.
     multiPV = std::max(multiPV, skill.candidates_size());
+	if (Limits.use_time_management()&&(RealmultiPV==1))
+		if (depth<5)
+			multiPV=2;
 
     // Iterative deepening loop until requested to stop or target depth reached
     while (++depth <= MAX_PLY && !Signals.stop && (!Limits.depth || depth <= Limits.depth))
     {
-		if (Limits.use_time_management()&&(RealmultiPV==1))
-		{
-			if (depth<5)
-				multiPV=2;
-			else //calculate diff and use it to decide if the move is probably easy 
-				//so continue to calculate second best move
-			{
-				if (multiPV==2)
-				{//if the difference is smaller than 0.5 pawn 
-					//or became smaller then maybe it is not an easy move
-					diff=RootMoves[0].score-RootMoves[1].score;
-				    if (diff<PawnValueMg/2||
-						(RootMoves[0].prevScore-RootMoves[1].prevScore)>diff)
-					{
-						if (diff<PawnValueMg/2)//the move is still candidate to be easy move
-							//when the difference in score is bigger than half pawn
-						{
-							multiPV=1;
-							diff=Value(0);
-						}
-						else
-							diff=diff/2;//the move is less easy move because the dif goes down
-					}
-					else
-					if (diff<PawnValueMg)
-					    diff=PawnValueMg;//easy move when the difference does not go down 
-					//is not more than 1/2 of the remaining time but can be less than it
-				}
-
-			}
-			 
-		}
         // Age out PV variability metric
         BestMoveChanges *= 0.5;
 
@@ -393,9 +364,29 @@ namespace {
         if (Limits.use_time_management() && !Signals.stop && !Signals.stopOnPonderhit)
         {
             // Take some extra time if the best move has changed
-            if (depth > 4 && multiPV == 1)
+            if (depth > 4 && RealmultiPV == 1)
                 TimeMgr.pv_instability(BestMoveChanges);
-
+			//calculate diff for easy move in case that we suspect easy move.
+			if (multiPV==2)
+			{
+				//if the difference is smaller than 0.5 pawn 
+					//or went down then maybe it is not an easy move
+				diff=RootMoves[0].score-RootMoves[1].score;
+				if (diff<PawnValueMg/2||
+					(RootMoves[0].prevScore-RootMoves[1].prevScore)>diff)
+				{
+					if (diff<PawnValueMg/2)
+					{
+						multiPV=1;
+						diff=Value(0);
+					}
+					else
+						diff=diff/2;
+				}
+				else
+					if (diff<PawnValueMg*2)
+						diff=PawnValueMg*2;
+			}
             // Stop the search if only one legal move is available or all
             // of the available time has been used.
             if (   RootMoves.size() == 1
