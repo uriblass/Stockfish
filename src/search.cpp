@@ -74,6 +74,7 @@ namespace {
   size_t PVIdx;
   TimeManager TimeMgr;
   double BestMoveChanges;
+  Value diff;
   Value DrawValue[COLOR_NB];
   HistoryStats History;
   GainsStats Gains;
@@ -244,7 +245,7 @@ namespace {
     Stack stack[MAX_PLY_PLUS_6], *ss = stack+2; // To allow referencing (ss-2)
     int depth;
     Value bestValue, alpha, beta, delta;
-
+	diff=Value(0);
     std::memset(ss-2, 0, 5 * sizeof(Stack));
 
     depth = 0;
@@ -259,12 +260,16 @@ namespace {
     Followupmoves.clear();
 
     size_t multiPV = Options["MultiPV"];
+	size_t RealmultiPV =multiPV;//the real multiPV that we do not change for easy moves
     Skill skill(Options["Skill Level"], RootMoves.size());
 
     // Do we have to play with skill handicap? In this case enable MultiPV search
     // that we will use behind the scenes to retrieve a set of possible moves.
     multiPV = std::max(multiPV, skill.candidates_size());
-
+	if (Limits.use_time_management()&&(RealmultiPV==1))
+		if (depth<5
+			&&RootMoves.size()>1)
+			multiPV=2;
     // Iterative deepening loop until requested to stop or target depth reached
     while (++depth <= MAX_PLY && !Signals.stop && (!Limits.depth || depth <= Limits.depth))
     {
@@ -360,13 +365,22 @@ namespace {
         if (Limits.use_time_management() && !Signals.stop && !Signals.stopOnPonderhit)
         {
             // Take some extra time if the best move has changed
-            if (depth > 4 && multiPV == 1)
+            if (depth > 4 && RealmultiPV == 1)
                 TimeMgr.pv_instability(BestMoveChanges);
-
+			//calculate diff for easy move in case that we suspect easy move.
+			if (multiPV==2)
+			{
+				diff=RootMoves[0].score-RootMoves[1].score;
+				if (diff<PawnValueMg*2)
+				{
+					multiPV=1;
+					diff=Value(-5);//diff is changed to 0 if the program changes its mind later and if it does not change its mind later we want to use slightly more time because the difference is small 
+				}
+			}
             // Stop the search if only one legal move is available or all
             // of the available time has been used.
             if (   RootMoves.size() == 1
-                || Time::now() - SearchTime > TimeMgr.available_time())
+                || Time::now() - SearchTime > TimeMgr.available_time()/(1+(double)diff/(double)PawnValueMg))
             {
                 // If we are allowed to ponder do not stop the search now but
                 // keep pondering until the GUI sends "ponderhit" or "stop".
@@ -903,7 +917,10 @@ moves_loop: // When in check and at SpNode search starts from here
               // iteration. This information is used for time management: When
               // the best move changes frequently, we allocate some more time.
               if (!pvMove)
+			  {
                   ++BestMoveChanges;
+				  diff=Value(0);
+			  }
           }
           else
               // All other moves but the PV are set to the lowest value: this is
@@ -1576,7 +1593,7 @@ void check_time() {
   Time::point elapsed = Time::now() - SearchTime;
   bool stillAtFirstMove =    Signals.firstRootMove
                          && !Signals.failedLowAtRoot
-                         &&  elapsed > TimeMgr.available_time() * 75 / 100;
+                         &&  elapsed > TimeMgr.available_time() * 75 / (100*(1+(double)diff/(double)PawnValueMg));
 
   bool noMoreTime =   elapsed > TimeMgr.maximum_time() - 2 * TimerThread::Resolution
                    || stillAtFirstMove;
