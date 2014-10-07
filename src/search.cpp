@@ -374,7 +374,7 @@ namespace {
 				if (diff<PawnValueMg*2)
 				{
 					multiPV=1;
-					diff=Value(-5);//diff is changed to 0 if the program changes its mind later and if it does not change its mind later we want to use slightly more time because the difference is small 
+					diff=diff/2-Value(5);//diff is changed to 0 if the program changes its mind later and if it does not change its mind later we want to use slightly more time because the difference is small 
 				}
 			}
             // Stop the search if only one legal move is available or all
