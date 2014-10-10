@@ -76,6 +76,7 @@ namespace {
   double BestMoveChanges;
   Value diff;
   Value second_best;
+  bool change_it_mind;
   Value DrawValue[COLOR_NB];
   HistoryStats History;
   GainsStats Gains;
@@ -246,6 +247,7 @@ namespace {
     Stack stack[MAX_PLY_PLUS_6], *ss = stack+2; // To allow referencing (ss-2)
     int depth;
     Value bestValue, alpha, beta, delta;
+	change_it_mind=false;
 	diff=Value(0);
     std::memset(ss-2, 0, 5 * sizeof(Stack));
 
@@ -372,6 +374,7 @@ namespace {
 			//calculate diff for easy move in case that we suspect easy move.
 			if (multiPV==2)
 			{
+				change_it_mind=false;
 				diff=RootMoves[0].score-RootMoves[1].score;
 				if (diff<PawnValueMg*2)
 				{
@@ -380,7 +383,12 @@ namespace {
 				}
 			}
 			else
-				diff=RootMoves[0].score-second_best;
+			{
+				if (change_it_mind==false)
+				diff=std::max(RootMoves[0].score-second_best,Value(-10));
+				else
+					diff=Value(0);//do not want to change the time management when the program changed its mind at multi-pv=1
+			}
 
             // Stop the search if only one legal move is available or all
             // of the available time has been used.
@@ -924,7 +932,7 @@ moves_loop: // When in check and at SpNode search starts from here
               if (!pvMove)
 			  {
                   ++BestMoveChanges;
-				   diff=Value(0);
+				  change_it_mind=true;
 			  }
           }
           else
