@@ -385,7 +385,7 @@ namespace {
 			else
 			{
 				if (change_it_mind==false)
-				diff=std::max(RootMoves[0].score-second_best,Value(-10));
+				diff=std::max(RootMoves[0].score-second_best,Value(-10))/2;
 				else
 					diff=Value(0);//do not want to change the time management when the program changed its mind at multi-pv=1
 			}
