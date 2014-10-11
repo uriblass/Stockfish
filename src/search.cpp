@@ -385,7 +385,11 @@ namespace {
 			else
 			{
 				if (change_it_mind==false)
-				diff=std::max(RootMoves[0].score-second_best,Value(-10))/2;
+				{
+					diff=std::max(RootMoves[0].score-second_best,Value(-10));
+					if (diff>PawnValueMg/8)
+						diff=PawnValueMg;//play twice faster in cases when the difference between known scores is significant(at least 1/8 pawn)
+				}
 				else
 					diff=Value(0);//do not want to change the time management when the program changed its mind at multi-pv=1
 			}
