@@ -224,7 +224,7 @@ Entry* probe(const Position& pos, Table& entries, Endgames& endgames) {
       e->factor[BLACK] = (uint8_t) SCALE_FACTOR_ONEPAWN;
 
   // Compute the space weight
- // if (npm_w + npm_b >= 2 * QueenValueMg + 4 * RookValueMg + 2 * KnightValueMg)
+  if (npm_w + npm_b >= 2 * QueenValueMg + 2 * RookValueMg + 2 * KnightValueMg)
   {
       int minorPieceCount =  pos.count<KNIGHT>(WHITE) + pos.count<BISHOP>(WHITE)
                            + pos.count<KNIGHT>(BLACK) + pos.count<BISHOP>(BLACK);
