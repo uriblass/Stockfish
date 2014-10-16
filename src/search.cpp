@@ -112,7 +112,7 @@ namespace {
 
 } // namespace
 
-
+Move lastponder;
 /// Search::init() is called during startup to initialize various lookup tables
 
 void Search::init() {
@@ -270,7 +270,7 @@ namespace {
     {
         // Age out PV variability metric
         BestMoveChanges *= 0.5;
-
+		lastponder=RootMoves[0].pv[1];
         // Save the last iteration's scores before first PV line is searched and
         // all the move scores except the (new) PV are set to -VALUE_INFINITE.
         for (size_t i = 0; i < RootMoves.size(); ++i)
@@ -904,6 +904,12 @@ moves_loop: // When in check and at SpNode search starts from here
               // the best move changes frequently, we allocate some more time.
               if (!pvMove)
                   ++BestMoveChanges;
+			  else
+				  if (lastponder!=RootMoves[0].pv[1])
+				  {
+					  lastponder=RootMoves[0].pv[1];
+					  BestMoveChanges+=0.5;
+				  }
           }
           else
               // All other moves but the PV are set to the lowest value: this is
@@ -1361,7 +1367,6 @@ void RootMove::extract_pv_from_tt(Position& pos) {
 
   do {
       pv.push_back(m);
-
       assert(MoveList<LEGAL>(pos).contains(pv[ply - 1]));
 
       pos.do_move(pv[ply++ - 1], *st++);
