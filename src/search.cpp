@@ -119,13 +119,14 @@ void Search::init() {
   int d;  // depth (ONE_PLY == 2)
   int hd; // half depth (ONE_PLY == 1)
   int mc; // moveCount
-
+  
   // Init reductions array
   for (hd = 1; hd < 64; ++hd) for (mc = 1; mc < 64; ++mc)
   {
       double    pvRed = 0.00 + log(double(hd)) * log(double(mc)) / 3.00;
       double nonPVRed = 0.33 + log(double(hd)) * log(double(mc)) / 2.25;
-
+	  pvRed*=1.1;
+	  nonPVRed*=1.1;
       Reductions[1][1][hd][mc] = int8_t(   pvRed >= 1.0 ?    pvRed + 0.5: 0);
       Reductions[0][1][hd][mc] = int8_t(nonPVRed >= 1.0 ? nonPVRed + 0.5: 0);
 
