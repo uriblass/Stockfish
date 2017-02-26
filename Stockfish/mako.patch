@@ -1,0 +1,26 @@
+diff -Naur fishtest-master/fishtest/fishtest/__init__.py fishtest/fishtest/fishtest/__init__.py
+--- fishtest-master/fishtest/fishtest/__init__.py 2016-01-03 18:42:35.000000000 +0100
++++ fishtest/fishtest/fishtest/__init__.py    2016-01-06 22:04:07.467940700 +0100
+@@ -14,7 +14,9 @@
+   config = Configurator(settings=settings,
+                         session_factory=session_factory,
+                         root_factory='fishtest.models.RootFactory')
+-
++  
++  config.include('pyramid_mako')
++  
+   # Authentication
+   with open(os.path.expanduser('~/fishtest.secret'), 'r') as f:
+     secret = f.read()
+diff -Naur fishtest-master/fishtest/setup.py fishtest/fishtest/setup.py
+--- fishtest-master/fishtest/setup.py 2016-01-03 18:42:35.000000000 +0100
++++ fishtest/fishtest/setup.py    2016-01-06 21:41:12.401829500 +0100
+@@ -8,6 +8,7 @@
+requires = [
+   'pyramid',
+   'pyramid_debugtoolbar',
++    'pyramid_mako',
+     'waitress',
+     'psutil',
+     'pymongo',
+
